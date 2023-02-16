@@ -1,3 +1,5 @@
+package ResizableArrays;
+
 public interface ResizableArray<T> {
     int length();
     T get(int i);

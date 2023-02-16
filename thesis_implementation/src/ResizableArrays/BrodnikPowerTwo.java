@@ -1,3 +1,5 @@
+package ResizableArrays;
+
 public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     ResizableArray<DataBlock<T>> blocks;
     private int k;

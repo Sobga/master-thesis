@@ -1,3 +1,5 @@
+package ResizableArrays;
+
 import java.util.Arrays;
 
 public class ConstantArray<T> implements ResizableArray<T>{
@@ -49,7 +51,7 @@ public class ConstantArray<T> implements ResizableArray<T>{
 
     @Override
     public String toString() {
-        return "ConstantArray{" +
+        return "ResizableArrays.ConstantArray{" +
                 "n=" + n +
                 ", items=" + Arrays.toString(items) +
                 '}';

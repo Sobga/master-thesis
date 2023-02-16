@@ -1,3 +1,5 @@
+package ResizableArrays;
+
 public class ConstantLazyArray<T> extends ConstantArray<T>{
     private T[] oldItems;
     private int moveIdx;

@@ -1,3 +1,5 @@
+package ResizableArrays;
+
 import java.util.ArrayList;
 
 public class ResArrayList<T> implements ResizableArray<T>{

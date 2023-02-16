@@ -1,3 +1,5 @@
+package ResizableArrays;
+
 class DataBlock<T>{
     final T[] items;
     private int n;
