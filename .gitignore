@@ -286,4 +286,6 @@ fabric.properties
 .thesis_figures/idea/caches/build_file_checksums.ser
 
 # idea folder, uncomment if you don't need it
-# .thesis_figures/idea
+.thesis_figures/idea
+.thesis_implementation/idea
+.idea/workspace.xml
