@@ -43,6 +43,8 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     public void grow(T a) {
         n++;
 
+        k = log2nlz(n);
+
         DataBlock<T> lastBlock = blocks.last();
         if (!lastBlock.isFull()){
             // There is space in the last data block
@@ -50,8 +52,8 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         } else{
             // Must allocate new datablock
             // Determine if super-block is full
-            if (isPowerOfTwo(n))
-                k++;
+//            if (isPowerOfTwo(n))
+//                k++;
 
             // Size should be 2^(ceil(k/2))
             DataBlock<T> d = new DataBlock<>(this, 1 << ((k+1)/2));
@@ -62,9 +64,11 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
 
     @Override
     public T shrink() {
-        if (isPowerOfTwo(n))
-            k--;
         n--;
+        k = log2nlz(n);
+
+//        if (isPowerOfTwo(n))
+//            k--;
 
         DataBlock<T> lastBlock = blocks.last();
         if (lastBlock.isEmpty()) {
@@ -73,6 +77,15 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         }
 
         return lastBlock.pop();
+    }
+
+    @Override
+    public String toString() {
+        return "BrodnikPowerTwo{" +
+                "blocks=" + blocks.toString() +
+                ", k=" + k +
+                ", n=" + n +
+                '}';
     }
 
     // https://stackoverflow.com/a/600306
@@ -91,7 +104,28 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         return x & (Integer.highestOneBit(x)-1);
     }
 
+    public static int binlog( int bits ) // returns 0 for bits=0
+    {
+        int log = 0;
+        if( ( bits & 0xffff0000 ) != 0 ) { bits >>>= 16; log = 16; }
+        if( bits >= 256 ) { bits >>>= 8; log += 8; }
+        if( bits >= 16  ) { bits >>>= 4; log += 4; }
+        if( bits >= 4   ) { bits >>>= 2; log += 2; }
+        return log + ( bits >>> 1 );
+    }
+
+    public static int log2nlz( int bits )
+    {
+        if( bits == 0 )
+            return 0; // or throw exception
+        return 31 - Integer.numberOfLeadingZeros( bits );
+    }
+
     public static void main(String[] args) {
+
+    }
+
+    public static void prevBlockTest(){
         int count = 12;
         int sum = 0;
 

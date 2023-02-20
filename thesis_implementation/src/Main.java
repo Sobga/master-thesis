@@ -12,11 +12,13 @@ public class Main {
         // Resizable Arrays to test
         ArrayList<ResizableArray<Integer>> arrays = new ArrayList<>();
         arrays.add(baseline);
-        arrays.add(new ConstantLazyArray<>(1));
-        arrays.add(new Brodnik<>());
-        arrays.add(new BrodnikPowerTwo<>());
+//        arrays.add(new ConstantArray<>(1));
+//        arrays.add(new ConstantLazyArray<>(1));
+//        arrays.add(new Brodnik<>());
+//        arrays.add(new BrodnikPowerTwo<>());
+        arrays.add(new Sitarski<>());
 
-        Random random = new Random(1);
+        Random random = new Random(0);
         long seed = random.nextLong();
         random.setSeed(seed);
 
@@ -30,16 +32,16 @@ public class Main {
                         array.grow(i);
                         //System.out.println("Grow");
                     }
-                    case 1 -> {
+                    case 2 -> {
                         array.set(operationInfo.getValue(), i);
                         //System.out.println("Set");
                         }
-                    case 2 -> {
+                    case 1 -> {
                         array.shrink();
-                        //System.out.println("Shrink");
+//                        System.out.println("Shrink");
                     }
                 }
-            assert resizableEqual(baseline, arrays);
+            assert (resizableEqual(baseline, arrays));
         }
     }
 
@@ -49,7 +51,7 @@ public class Main {
         if (baseline.length() == 0)
             return new Pair<>(0, 0);
 
-        int operation = random.nextInt(2);
+        int operation = random.nextInt(3);
         int idx = random.nextInt(baseline.length());
         return new Pair<>(operation, idx);
     }

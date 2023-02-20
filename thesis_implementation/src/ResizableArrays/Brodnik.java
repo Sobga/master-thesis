@@ -1,39 +1,12 @@
 package ResizableArrays;
 
-class DataBlock<T>{
-    final T[] items;
-    private int n;
-    public DataBlock(ResizableArray<T> parent, int size){
-        items = parent.createTypedArray(size);
-    }
-
-    public void append(T a){
-        items[n++] = a;
-    }
-
-    public T pop(){
-        return items[--n];
-    }
-
-    public boolean isFull(){
-        return n == items.length;
-    }
-
-    public boolean isEmpty(){
-        return n == 0;
-    }
-
-    public int size(){
-        return items.length;
-    }
-}
-
 public class Brodnik<T> implements ResizableArray<T>{
     ResizableArray<DataBlock<T>> blocks;
     int n;
 
     public Brodnik(){
         blocks = new ConstantLazyArray<>(1);
+//        blocks = new ResArrayList<>();
         blocks.grow(new DataBlock<>(this,1));
     }
 
@@ -67,7 +40,7 @@ public class Brodnik<T> implements ResizableArray<T>{
 
         if (lastBlock.isFull()){
             // If last block is full, create new and add the item there
-            DataBlock<T> newBlock = new DataBlock<T>(this, lastBlock.size() + 1);
+            DataBlock<T> newBlock = new DataBlock<>(this, lastBlock.size() + 1);
             blocks.grow(newBlock);
 
             newBlock.append(a);

@@ -34,4 +34,9 @@ public class ResArrayList<T> implements ResizableArray<T>{
     public T shrink() {
         return items.remove(items.size() - 1);
     }
+
+    @Override
+    public String toString() {
+        return "ResArrayList{" + items + '}';
+    }
 }

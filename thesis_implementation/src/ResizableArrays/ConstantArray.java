@@ -5,10 +5,10 @@ import java.util.Arrays;
 public class ConstantArray<T> implements ResizableArray<T>{
     T[] items;
     int n = 0;
-    final float alpha;
+    final float scale;
 
     public ConstantArray(float alpha){
-        this.alpha = alpha;
+        this.scale = 1 + alpha;
         items = createTypedArray(1);
     }
 
@@ -31,15 +31,15 @@ public class ConstantArray<T> implements ResizableArray<T>{
     public void grow(T a) {
         // Grow array, as it is full
         if (n >= items.length)
-            items = Arrays.copyOf(items, (int) Math.ceil((1+alpha) * items.length));
+            items = Arrays.copyOf(items, (int) Math.ceil(scale * items.length));
         items[n++] = a;
     }
 
     @Override
     public T shrink() {
         // Array is too empty
-        if (n <= items.length / ((1+alpha) * (1+alpha)))
-            items = Arrays.copyOf(items, (int) Math.ceil(items.length / (1+alpha)));
+        if (n <= items.length / (scale * scale))
+            items = Arrays.copyOf(items, (int) Math.ceil(items.length / scale));
 
         // Find and delete last item
         T ret = items[n-1];
