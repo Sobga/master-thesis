@@ -88,7 +88,16 @@ public class Benchmarker {
                          new Brodnik<Integer>(),
                          new BrodnikPowerTwo<Integer>(),
                          new Sitarski<Integer>()
-                     })
+                     }, false),
+            new TimeBenchmark(new ResizableArray[]
+                    {
+                        new ResArrayList<Integer>(),
+                        new ConstantArray<Integer>(1),
+                        new ConstantLazyArray<Integer>(1),
+                        new Brodnik<Integer>(),
+                        new BrodnikPowerTwo<Integer>(),
+                        new Sitarski<Integer>()
+                    }, true)
         };
 
         // Perform benchmarks
@@ -96,7 +105,6 @@ public class Benchmarker {
             benchmark.run();
 
         // Write results
-//        System.out.println(toJSON(benchmarks));
         try {
             Date now = new Date();
             SimpleDateFormat formatter = new SimpleDateFormat("(yyyy-MM-dd)(HH-mm-ss)");

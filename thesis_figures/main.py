@@ -9,8 +9,11 @@ BENCHMARK_DIR = "../benchmarks"
 
 def plot_times(time_benchmark):
     time_benchmark['df'] = pd.DataFrame(time_benchmark['DATA'])
+    fields = time_benchmark['FIELDS']
     ax = sns.relplot(data=time_benchmark['df'])
-    ax.set(xlabel="Operation index", ylabel="Time [ns]", title="Time pr. growth operation")
+
+    title = "Time pr. operation" if fields['RANDOM_OPERATION'] else "Time pr. growth operation"
+    ax.set(xlabel="Operation index", ylabel="Time [ns]", title=title)
 
 
 def plot_benchmark(benchmark):
@@ -23,7 +26,6 @@ def plot_benchmark(benchmark):
 def main():
     sns.set_theme()
     filenames = sorted(os.listdir(BENCHMARK_DIR), reverse=True)
-    benchmarks = []
 
     with open(os.path.join(BENCHMARK_DIR, filenames[0]), "r") as file:
         benchmarks = json.load(file)

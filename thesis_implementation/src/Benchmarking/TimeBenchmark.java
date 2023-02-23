@@ -11,11 +11,11 @@ public class TimeBenchmark extends Benchmark{
     private final int N_TRIALS = 10;
     private final int TEST_SIZE = (int) 1E4;
 
-    private ResizableArray<Integer>[] arrays;
-    private Map<ResizableArray<Integer>, long[]> results;
-    private Map<String, Object> fields;
+    private final ResizableArray<Integer>[] arrays;
+    private final Map<ResizableArray<Integer>, long[]> results;
+    private final Map<String, Object> fields;
 
-    public TimeBenchmark(ResizableArray<Integer>[] arrays){
+    public TimeBenchmark(ResizableArray<Integer>[] arrays, boolean randomOperation){
         this.arrays = arrays;
 
         // Prepare result storage
@@ -26,6 +26,7 @@ public class TimeBenchmark extends Benchmark{
         // Register relevant fields
         fields = new HashMap<>();
         fields.put("N_TRIALS", N_TRIALS);
+        fields.put("RANDOM_OPERATION", randomOperation);
     }
 
     @Override
@@ -73,10 +74,6 @@ public class TimeBenchmark extends Benchmark{
             // Rescale results
             for (int i = 0; i < TEST_SIZE; i++){
                 resultArr[i] = Utils.slowMedian(timeArr[i]);
-//                int sum = 0;
-//                for (int j = 0; j < N_TRIALS; j++)
-//                    sum+= timeArr[i][j];
-//                resultArr[i] = sum / N_TRIALS;
             }
         }
     }
@@ -124,8 +121,9 @@ public class TimeBenchmark extends Benchmark{
             }
 
             // Generate random operation
-//            OperationType op =  OperationType.fromInt(random.nextInt(4));
-            OperationType op =  OperationType.fromInt(2); // Only grow
+//            OperationType op =  ;
+            OperationType op = (boolean) fields.get("RANDOM_OPERATION") ?
+                    OperationType.fromInt(random.nextInt(4)) : OperationType.fromInt(2);
             int idx = random.nextInt(n);
             operations[i] = new Operation(op, idx, i);
 
