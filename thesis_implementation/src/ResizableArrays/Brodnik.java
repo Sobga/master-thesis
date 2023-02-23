@@ -11,6 +11,11 @@ public class Brodnik<T> implements ResizableArray<T>{
     }
 
     @Override
+    public String getName() {
+        return "Brodnik";
+    }
+
+    @Override
     public int length() {
         return n;
     }
@@ -60,5 +65,13 @@ public class Brodnik<T> implements ResizableArray<T>{
             lastBlock = blocks.last();
         }
         return lastBlock.pop();
+    }
+
+    @Override
+    public void clear() {
+        n = 0;
+        blocks.clear();
+        blocks.grow(new DataBlock<>(this,1));
+
     }
 }

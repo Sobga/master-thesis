@@ -14,9 +14,9 @@ public class Main {
         arrays.add(baseline);
 //        arrays.add(new ConstantArray<>(1));
 //        arrays.add(new ConstantLazyArray<>(1));
-//        arrays.add(new Brodnik<>());
+        arrays.add(new Brodnik<>());
 //        arrays.add(new BrodnikPowerTwo<>());
-        arrays.add(new Sitarski<>());
+//        arrays.add(new Sitarski<>());
 
         Random random = new Random(0);
         long seed = random.nextLong();
@@ -51,7 +51,7 @@ public class Main {
         if (baseline.length() == 0)
             return new Pair<>(0, 0);
 
-        int operation = random.nextInt(3);
+        int operation = random.nextInt(1);
         int idx = random.nextInt(baseline.length());
         return new Pair<>(operation, idx);
     }

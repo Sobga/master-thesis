@@ -36,6 +36,17 @@ public class ResArrayList<T> implements ResizableArray<T>{
     }
 
     @Override
+    public void clear() {
+        items.clear();
+        items.trimToSize();
+    }
+
+    @Override
+    public String getName() {
+        return "ArrayList";
+    }
+
+    @Override
     public String toString() {
         return "ResArrayList{" + items + '}';
     }

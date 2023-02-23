@@ -1,16 +1,38 @@
-# This is a sample Python script.
+import json
+import os
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+BENCHMARK_DIR = "../benchmarks"
 
 
-# Press the green button in the gutter to run the script.
+def plot_times(time_benchmark):
+    time_benchmark['df'] = pd.DataFrame(time_benchmark['DATA'])
+    ax = sns.relplot(data=time_benchmark['df'])
+    ax.set(xlabel="Operation index", ylabel="Time [ns]", title="Time pr. growth operation")
+
+
+def plot_benchmark(benchmark):
+    if 'TimeBenchmark' in benchmark['NAME']:
+        plot_times(benchmark)
+    else:
+        raise Exception("No plot found for " + benchmark['NAME'])
+
+
+def main():
+    sns.set_theme()
+    filenames = sorted(os.listdir(BENCHMARK_DIR), reverse=True)
+    benchmarks = []
+
+    with open(os.path.join(BENCHMARK_DIR, filenames[0]), "r") as file:
+        benchmarks = json.load(file)
+        file.close()
+
+    for benchmark in benchmarks:
+        plot_benchmark(benchmark)
+    plt.show()
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main()

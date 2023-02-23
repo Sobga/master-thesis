@@ -10,6 +10,11 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         blocks.grow(new DataBlock<>(this,1));
     }
 
+    @Override
+    public String getName() {
+        return "BrodnikPowerTwo";
+    }
+
     public int length(){
         return n;
     }
@@ -80,6 +85,14 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     }
 
     @Override
+    public void clear() {
+        n = 0;
+        k = 0;
+        blocks.clear();
+        blocks.grow(new DataBlock<>(this,1));
+    }
+
+    @Override
     public String toString() {
         return "BrodnikPowerTwo{" +
                 "blocks=" + blocks.toString() +
@@ -121,9 +134,6 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         return 31 - Integer.numberOfLeadingZeros( bits );
     }
 
-    public static void main(String[] args) {
-
-    }
 
     public static void prevBlockTest(){
         int count = 12;

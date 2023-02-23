@@ -13,6 +13,11 @@ public class ConstantArray<T> implements ResizableArray<T>{
     }
 
     @Override
+    public String getName() {
+        return "ConstantArray-" + (scale-1);
+    }
+
+    @Override
     public int length() {
         return n;
     }
@@ -47,6 +52,12 @@ public class ConstantArray<T> implements ResizableArray<T>{
         n--;
 
         return ret;
+    }
+
+    @Override
+    public void clear() {
+        items = createTypedArray(1);
+        n = 0;
     }
 
     @Override

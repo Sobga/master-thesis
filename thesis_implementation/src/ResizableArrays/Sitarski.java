@@ -12,6 +12,11 @@ public class Sitarski<T> implements ResizableArray<T>{
     }
 
     @Override
+    public String getName() {
+        return "Sitarski";
+    }
+
+    @Override
     public int length() {
         return n;
     }
@@ -106,6 +111,13 @@ public class Sitarski<T> implements ResizableArray<T>{
 
         b = newB;
         indexBlock = newIndex;
+    }
+
+    @Override
+    public void clear() {
+        indexBlock = (DataBlock<T>[]) new DataBlock[b];
+        b = 1;
+        n = 0;
     }
 
     @Override

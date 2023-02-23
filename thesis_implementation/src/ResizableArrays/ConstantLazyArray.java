@@ -11,6 +11,11 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
     }
 
     @Override
+    public String getName() {
+        return "ConstantLazyArray-" + (scale-1);
+    }
+
+    @Override
     public T get(int i) {
         if (i < oldItems.length)
 //            return items[i];
@@ -68,6 +73,13 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
             items[moveIdx] = oldItems[moveIdx];
             moveIdx++;
         }
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        oldItems = items;
+        moveIdx = 0;
     }
 
     @Override
