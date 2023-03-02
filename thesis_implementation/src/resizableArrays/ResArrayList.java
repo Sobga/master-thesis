@@ -1,4 +1,4 @@
-package ResizableArrays;
+package resizableArrays;
 
 import java.util.ArrayList;
 
@@ -39,6 +39,11 @@ public class ResArrayList<T> implements ResizableArray<T>{
     public void clear() {
         items.clear();
         items.trimToSize();
+    }
+
+    @Override
+    public long byteCount() {
+        return -1;
     }
 
     @Override

@@ -1,6 +1,8 @@
-package ResizableArrays;
+package resizableArrays;
 
-public interface ResizableArray<T> {
+import memory.WordCountable;
+
+public interface ResizableArray<T> extends WordCountable {
     int length();
     T get(int i);
     void set(int i, T a);
@@ -8,14 +10,10 @@ public interface ResizableArray<T> {
     T shrink();
     void clear();
 
-    //
     String getName();
 
     // Returns the last element in the array
     default T last(){return get(length() - 1);}
-    default T[] createTypedArray(int size){
-        return (T[]) new Object[size];
-    }
 }
 
 

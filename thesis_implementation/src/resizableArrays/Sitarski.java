@@ -1,4 +1,7 @@
-package ResizableArrays;
+package resizableArrays;
+
+import memory.MemoryLookup;
+import utils.Utils;
 
 import java.util.Arrays;
 
@@ -45,7 +48,7 @@ public class Sitarski<T> implements ResizableArray<T>{
 
         // We need a new block
         if (indexBlock[blockIdx] == null)
-            indexBlock[blockIdx] = new DataBlock<>(this, b);
+            indexBlock[blockIdx] = new DataBlock<>(b);
 
         // Add item
         indexBlock[blockIdx].append(a);
@@ -60,7 +63,11 @@ public class Sitarski<T> implements ResizableArray<T>{
             rebuild(false);
         }
         int blockIdx = n >> log2nlz(b);
-        return indexBlock[blockIdx].pop();
+        T ret = indexBlock[blockIdx].pop();
+
+        if (indexBlock[blockIdx].isEmpty() && blockIdx+1 < b)
+            indexBlock[blockIdx+1] = null;
+        return ret;
     }
 
     // Rebuild the datastructure with a new B value. Are we increasing or decreasing B?
@@ -72,7 +79,7 @@ public class Sitarski<T> implements ResizableArray<T>{
         if (doIncrease){
             // Block size is increasing; each new block holds 2 of the old blocks
             for (int i = 0; i < Math.max(b >> 1, 1); i++){
-                T[] items = createTypedArray(newB);
+                T[] items = Utils.createTypedArray(newB);
                 int fillLevel = 0;
                 // Copy and deallocate first block
                 System.arraycopy(indexBlock[2*i].items, 0, items, 0, b);
@@ -115,9 +122,9 @@ public class Sitarski<T> implements ResizableArray<T>{
 
     @Override
     public void clear() {
-        indexBlock = (DataBlock<T>[]) new DataBlock[b];
         b = 1;
         n = 0;
+        indexBlock = (DataBlock<T>[]) new DataBlock[b];
     }
 
     @Override
@@ -141,5 +148,10 @@ public class Sitarski<T> implements ResizableArray<T>{
         if( bits == 0 )
             return 0; // or throw exception
         return 31 - Integer.numberOfLeadingZeros( bits );
+    }
+
+    @Override
+    public long byteCount() {
+        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(b) + MemoryLookup.wordSize(indexBlock);
     }
 }

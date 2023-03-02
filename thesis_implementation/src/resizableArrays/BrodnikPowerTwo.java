@@ -1,4 +1,6 @@
-package ResizableArrays;
+package resizableArrays;
+
+import memory.MemoryLookup;
 
 public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     ResizableArray<DataBlock<T>> blocks;
@@ -6,8 +8,8 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     private int n;
 
     public BrodnikPowerTwo(){
-        blocks = new ConstantLazyArray<>(1);
-        blocks.grow(new DataBlock<>(this,1));
+        blocks = new ConstantArray<>(1f);
+        blocks.grow(new DataBlock<>(1));
     }
 
     @Override
@@ -61,7 +63,7 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
 //                k++;
 
             // Size should be 2^(ceil(k/2))
-            DataBlock<T> d = new DataBlock<>(this, 1 << ((k+1)/2));
+            DataBlock<T> d = new DataBlock<>(1 << ((k + 1) / 2));
             blocks.grow(d);
             d.append(a);
         }
@@ -89,7 +91,7 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         n = 0;
         k = 0;
         blocks.clear();
-        blocks.grow(new DataBlock<>(this,1));
+        blocks.grow(new DataBlock<>(1));
     }
 
     @Override
@@ -144,5 +146,10 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
             System.out.println(k + "\t" + sum + "\t" + prevBlockSize(k));
             sum += 1 << (k/2);
         }
+    }
+
+    @Override
+    public long byteCount() {
+        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(k) + MemoryLookup.wordSize(blocks);
     }
 }

@@ -1,13 +1,18 @@
-package ResizableArrays;
+package resizableArrays;
+
+import memory.WordCountable;
+import memory.MemoryLookup;
 
 import java.util.Arrays;
 
-class DataBlock<T> {
+import static utils.Utils.createTypedArray;
+
+class DataBlock<T> implements WordCountable {
     final T[] items;
     private int n;
 
-    public DataBlock(ResizableArray<T> parent, int size) {
-        items = parent.createTypedArray(size);
+    public DataBlock( int size) {
+        items = createTypedArray(size);
     }
     public DataBlock(T[] items, int fillLevel){
         assert fillLevel >= 0 && fillLevel <= items.length;
@@ -41,5 +46,10 @@ class DataBlock<T> {
     @Override
     public String toString() {
         return Arrays.toString(items);
+    }
+
+    @Override
+    public long byteCount() {
+        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(items);
     }
 }

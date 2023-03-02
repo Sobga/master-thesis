@@ -1,13 +1,15 @@
-package ResizableArrays;
+package resizableArrays;
+
+import memory.MemoryLookup;
 
 public class Brodnik<T> implements ResizableArray<T>{
-    ResizableArray<DataBlock<T>> blocks;
-    int n;
+    private final ResizableArray<DataBlock<T>> blocks;
+    private int n;
 
     public Brodnik(){
-        blocks = new ConstantLazyArray<>(1);
+        blocks = new ConstantArray<>(1);
 //        blocks = new ResArrayList<>();
-        blocks.grow(new DataBlock<>(this,1));
+        blocks.grow(new DataBlock<>(1));
     }
 
     @Override
@@ -45,9 +47,8 @@ public class Brodnik<T> implements ResizableArray<T>{
 
         if (lastBlock.isFull()){
             // If last block is full, create new and add the item there
-            DataBlock<T> newBlock = new DataBlock<>(this, lastBlock.size() + 1);
+            DataBlock<T> newBlock = new DataBlock<>(lastBlock.size() + 1);
             blocks.grow(newBlock);
-
             newBlock.append(a);
         } else
             lastBlock.append(a);
@@ -71,7 +72,11 @@ public class Brodnik<T> implements ResizableArray<T>{
     public void clear() {
         n = 0;
         blocks.clear();
-        blocks.grow(new DataBlock<>(this,1));
+        blocks.grow(new DataBlock<>(1));
+    }
 
+    @Override
+    public long byteCount() {
+        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(blocks);
     }
 }

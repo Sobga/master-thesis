@@ -1,6 +1,6 @@
-package Benchmarking;
+package benchmarking;
 
-import ResizableArrays.*;
+import resizableArrays.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,8 +25,11 @@ public class Benchmarker {
             appendString(sb, (String) property);
         else if (property instanceof long[])
             sb.append(Arrays.toString((long[]) property));
+        else if (property instanceof  int[])
+            sb.append(Arrays.toString((int[]) property));
         else
             sb.append(property);
+        sb.append("\n");
     }
 
     private String benchmarkToJSON(Benchmark benchmark){
@@ -56,7 +59,7 @@ public class Benchmarker {
             Object results = benchmark.getRecordedData(array);
             if (i++ != 0)
                 sb.append(", ");
-            appendProperty(sb, array.getName(), results);
+            appendProperty(sb, benchmark.getArrayName(array), results);
         }
         // End of data
         sb.append("}");
@@ -78,26 +81,21 @@ public class Benchmarker {
     }
 
     public void run(){
-        // Selected benchmarks
-        Benchmark[] benchmarks = new Benchmark[]{
-             new TimeBenchmark(new ResizableArray[]
-                     {
-                         new ResArrayList<Integer>(),
-                         new ConstantArray<Integer>(1),
-                         new ConstantLazyArray<Integer>(1),
-                         new Brodnik<Integer>(),
-                         new BrodnikPowerTwo<Integer>(),
-                         new Sitarski<Integer>()
-                     }, false),
-            new TimeBenchmark(new ResizableArray[]
-                    {
+        ResizableArray<Integer>[] arrays = new ResizableArray[]
+                {
                         new ResArrayList<Integer>(),
                         new ConstantArray<Integer>(1),
                         new ConstantLazyArray<Integer>(1),
                         new Brodnik<Integer>(),
                         new BrodnikPowerTwo<Integer>(),
                         new Sitarski<Integer>()
-                    }, true)
+                };
+        // Selected benchmarks
+        Benchmark[] benchmarks = new Benchmark[]{
+             new TimeBenchmark(arrays, false),
+            //new TimeBenchmark(arrays, true),
+            new TotalTimeBenchmark(arrays, false),
+            new MemoryBenchmark(arrays)
         };
 
         // Perform benchmarks

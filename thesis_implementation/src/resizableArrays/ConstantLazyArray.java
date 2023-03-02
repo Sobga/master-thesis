@@ -1,4 +1,8 @@
-package ResizableArrays;
+package resizableArrays;
+
+import memory.MemoryLookup;
+
+import static utils.Utils.createTypedArray;
 
 public class ConstantLazyArray<T> extends ConstantArray<T>{
     private T[] oldItems;
@@ -17,7 +21,7 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
 
     @Override
     public T get(int i) {
-        if (i < oldItems.length)
+        if (oldItems != null && i < oldItems.length)
 //            return items[i];
             items[i] = oldItems[i];
         return items[i];
@@ -25,7 +29,7 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
 
     @Override
     public void set(int i, T a){
-        if (i < oldItems.length)
+        if (oldItems != null && i < oldItems.length)
             oldItems[i] = a;
         items[i] = a;
     }
@@ -72,6 +76,9 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
         if (moveIdx < oldN && moveIdx < items.length){
             items[moveIdx] = oldItems[moveIdx];
             moveIdx++;
+        } else {
+            // All items have been moved over
+            oldItems = null;
         }
     }
 
@@ -80,6 +87,14 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
         super.clear();
         oldItems = items;
         moveIdx = 0;
+    }
+
+    @Override
+    public long byteCount() {
+        return super.byteCount() +
+                MemoryLookup.wordSize(oldItems) +
+                MemoryLookup.wordSize(moveIdx) +
+                MemoryLookup.wordSize(oldN);
     }
 
     @Override

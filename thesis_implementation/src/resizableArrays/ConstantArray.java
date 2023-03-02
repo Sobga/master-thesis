@@ -1,13 +1,19 @@
-package ResizableArrays;
+package resizableArrays;
+
+import memory.MemoryLookup;
 
 import java.util.Arrays;
+
+import static utils.Utils.createTypedArray;
 
 public class ConstantArray<T> implements ResizableArray<T>{
     T[] items;
     int n = 0;
     final float scale;
+    Class<T> tClass;
 
     public ConstantArray(float alpha){
+        this.tClass = tClass;
         this.scale = 1 + alpha;
         items = createTypedArray(1);
     }
@@ -58,6 +64,11 @@ public class ConstantArray<T> implements ResizableArray<T>{
     public void clear() {
         items = createTypedArray(1);
         n = 0;
+    }
+
+    @Override
+    public long byteCount() {
+        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(scale) + MemoryLookup.wordSize(items);
     }
 
     @Override

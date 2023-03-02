@@ -1,4 +1,4 @@
-package Benchmarking;
+package benchmarking;
 
 public enum OperationType {
     GET,

@@ -1,4 +1,4 @@
-import ResizableArrays.*;
+import resizableArrays.*;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -22,9 +22,9 @@ public class Main {
         long seed = random.nextLong();
         random.setSeed(seed);
 
+
         System.out.println("Seed: " + seed);
         for (int i = 0; i < 10000; i++){
-
             Pair<Integer, Integer> operationInfo = getOperation(baseline, random);
             for (ResizableArray<Integer> array : arrays)
                 switch (operationInfo.getKey()){
