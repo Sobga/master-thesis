@@ -1,6 +1,7 @@
 package resizableArrays;
 
 import memory.MemoryLookup;
+import utils.Utils;
 
 public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     ResizableArray<DataBlock<T>> blocks;
@@ -50,7 +51,7 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     public void grow(T a) {
         n++;
 
-        k = log2nlz(n);
+        k = Utils.log2nlz(n);
 
         DataBlock<T> lastBlock = blocks.last();
         if (!lastBlock.isFull()){
@@ -72,7 +73,7 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
     @Override
     public T shrink() {
         n--;
-        k = log2nlz(n);
+        k = Utils.log2nlz(n);
 
 //        if (isPowerOfTwo(n))
 //            k--;
@@ -127,13 +128,6 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         if( bits >= 16  ) { bits >>>= 4; log += 4; }
         if( bits >= 4   ) { bits >>>= 2; log += 2; }
         return log + ( bits >>> 1 );
-    }
-
-    public static int log2nlz( int bits )
-    {
-        if( bits == 0 )
-            return 0; // or throw exception
-        return 31 - Integer.numberOfLeadingZeros( bits );
     }
 
 

@@ -21,10 +21,10 @@ def plot_total_time(time_benchmark):
     # Rescale measurements from ns to ms
     for arr in time_benchmark['DATA'].values():
         for i in range(len(arr)):
-            arr[i] /= 1000
+            arr[i] /= 1E6
 
     fields = time_benchmark['FIELDS']
-    df = pd.DataFrame({**time_benchmark['DATA'], **{'SIZES': fields['SIZES']}})
+    df = pd.DataFrame({**time_benchmark['DATA'], **{'SIZES': fields['INTERVALS']}})
     time_benchmark['df'] = df.melt('SIZES', var_name='COLS', value_name='VALS')
 
     g = sns.relplot(data=time_benchmark['df'], x='SIZES', y='VALS', hue='COLS', kind='line', style='COLS', markers=True, facet_kws={'legend_out': True})
@@ -73,7 +73,7 @@ def main():
     for idx, benchmark in enumerate(benchmarks):
         g = plot_benchmark(benchmark)
         name = benchmark['NAME']
-        g.savefig(f'Figures/{name}_{idx}.png')
+        g.savefig(f'Figures/{name}_{idx}.png', format='png')
     # plt.show()
 
 

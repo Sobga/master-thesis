@@ -10,49 +10,49 @@ public class ResArrayList<T> implements ResizableArray<T>{
     }
 
     @Override
-    public int length() {
+    public final int length() {
         return items.size();
     }
 
     @Override
-    public T get(int i) {
+    public final T get(int i) {
         return items.get(i);
     }
 
 
     @Override
-    public void set(int i, T a) {
+    public final void set(int i, T a) {
         items.set(i, a);
     }
 
     @Override
-    public void grow(T a) {
+    public final void grow(T a) {
         items.add(a);
     }
 
     @Override
-    public T shrink() {
+    public final T shrink() {
         return items.remove(items.size() - 1);
     }
 
     @Override
-    public void clear() {
+    public final void clear() {
         items.clear();
         items.trimToSize();
     }
 
     @Override
-    public long byteCount() {
+    public final long byteCount() {
         return -1;
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return "ArrayList";
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return "ResArrayList{" + items + '}';
     }
 }

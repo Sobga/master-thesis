@@ -11,7 +11,7 @@ public class Sitarski<T> implements ResizableArray<T>{
     private int n;
 
     public Sitarski(){
-        indexBlock = (DataBlock<T>[]) new DataBlock[b];
+        indexBlock = allocateDatablocks(b);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class Sitarski<T> implements ResizableArray<T>{
     // Rebuild the datastructure with a new B value. Are we increasing or decreasing B?
     private void rebuild(boolean doIncrease){
         int newB = Math.max(doIncrease ? b << 1 : b >> 1, 1);
-        DataBlock<T>[] newIndex = (DataBlock<T>[]) new DataBlock[newB];
+        DataBlock<T>[] newIndex = allocateDatablocks(newB);
 
         // Copy values over
         if (doIncrease){
@@ -124,7 +124,7 @@ public class Sitarski<T> implements ResizableArray<T>{
     public void clear() {
         b = 1;
         n = 0;
-        indexBlock = (DataBlock<T>[]) new DataBlock[b];
+        indexBlock = allocateDatablocks(b);
     }
 
     @Override

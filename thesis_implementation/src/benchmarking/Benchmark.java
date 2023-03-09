@@ -44,11 +44,25 @@ public abstract class Benchmark {
             measurer.store(array, output);
         }
     }
+
     public Object measureOverallOperations(ResizableArray<Integer> array, Operation[] operations, Measurer measurer){
         measurer.start();
         for (Operation operation : operations)
             operation.applyOperation(array);
         return measurer.end();
+    }
+
+    public void measureIntervalOperations(ResizableArray<Integer> array, Operation[] operations, Measurer measurer, int[] intervals){
+        int intervalProgress = 0;
+        measurer.start();
+        for (int i = 0; i < operations.length; i++){
+            operations[i].applyOperation(array);
+            if (i >= intervals[intervalProgress]){
+                measurer.store(array, null);
+                intervalProgress++;
+            }
+        }
+        measurer.end();
     }
 }
 

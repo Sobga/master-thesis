@@ -14,6 +14,10 @@ public interface ResizableArray<T> extends WordCountable {
 
     // Returns the last element in the array
     default T last(){return get(length() - 1);}
+
+    default DataBlock<T>[] allocateDatablocks(int size){
+        return (DataBlock<T>[]) new DataBlock[size];
+    }
 }
 
 

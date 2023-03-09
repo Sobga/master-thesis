@@ -9,7 +9,7 @@ import static utils.Utils.createTypedArray;
 
 class DataBlock<T> implements WordCountable {
     final T[] items;
-    private int n;
+    int n;
 
     public DataBlock( int size) {
         items = createTypedArray(size);
@@ -25,6 +25,7 @@ class DataBlock<T> implements WordCountable {
     }
 
     public T pop() {
+        assert n > 0;
         n--;
         T ret = items[n];
         items[n] = null;
@@ -36,6 +37,7 @@ class DataBlock<T> implements WordCountable {
     }
 
     public boolean isEmpty() {
+        assert n >= 0;
         return n == 0;
     }
 

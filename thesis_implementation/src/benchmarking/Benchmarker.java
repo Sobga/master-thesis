@@ -88,19 +88,23 @@ public class Benchmarker {
                         new ConstantLazyArray<Integer>(1),
                         new Brodnik<Integer>(),
                         new BrodnikPowerTwo<Integer>(),
-                        new Sitarski<Integer>()
+                        new Sitarski<Integer>(),
+                        new Tarjan<Integer>()
                 };
+
         // Selected benchmarks
         Benchmark[] benchmarks = new Benchmark[]{
-             new TimeBenchmark(arrays, false),
-            //new TimeBenchmark(arrays, true),
+            new TimeBenchmark(arrays, false),
             new TotalTimeBenchmark(arrays, false),
             new MemoryBenchmark(arrays)
         };
 
         // Perform benchmarks
-        for (Benchmark benchmark: benchmarks)
+        for (Benchmark benchmark: benchmarks){
+            System.out.println("Running benchmark: " + benchmark.getName());
             benchmark.run();
+        }
+
 
         // Write results
         try {
