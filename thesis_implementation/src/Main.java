@@ -1,5 +1,8 @@
-import resizableArrays.*;
-import javafx.util.Pair;
+import benchmarking.Operation;
+import resizableArrays.ResArrayList;
+import resizableArrays.ResizableArray;
+import resizableArrays.Tarjan;
+import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,42 +22,18 @@ public class Main {
 //        arrays.add(new BrodnikPowerTwo<>());
 //        arrays.add(new Sitarski<>());
 
+        // Generate random operations
         Random random = new Random(0);
         long seed = random.nextLong();
-        random.setSeed(seed);
-
-
         System.out.println("Seed: " + seed);
-        for (int i = 0; i < 10000; i++){
-            Pair<Integer, Integer> operationInfo = getOperation(baseline, random);
+        Utils.setSeed(seed);
+        Operation[] operations = Utils.generateOperations(1000000, 2, 0, 0, 1);
+
+        for (int i = 0; i < operations.length; i++){
             for (ResizableArray<Integer> array : arrays)
-                switch (operationInfo.getKey()){
-                    case 0 -> {
-                        array.grow(i);
-                        //System.out.println("Grow");
-                    }
-                    case 2 -> {
-                        array.set(operationInfo.getValue(), i);
-                        //System.out.println("Set");
-                        }
-                    case 1 -> {
-                        array.shrink();
-//                        System.out.println("Shrink");
-                    }
-                }
+                operations[i].applyOperation(array);
             assert (resizableEqual(baseline, arrays));
         }
-    }
-
-    // "Randomly" selects the next iteration to be performed
-    private Pair<Integer, Integer> getOperation(ResizableArray<?> baseline, Random random){
-        // Must enforce a grow operation
-        if (baseline.length() == 0)
-            return new Pair<>(0, 0);
-
-        int operation = random.nextInt(4);
-        int idx = random.nextInt(baseline.length());
-        return new Pair<>(operation, idx);
     }
 
     // Determines if all arrays are equal (ie. contain the same elements)

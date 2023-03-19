@@ -3,7 +3,6 @@ package resizableArrays;
 import memory.MemoryLookup;
 import utils.Utils;
 
-import javax.xml.crypto.Data;
 import java.util.Arrays;
 
 public class Tarjan<T> implements ResizableArray<T>{
@@ -98,9 +97,10 @@ public class Tarjan<T> implements ResizableArray<T>{
             smallBlocks.append(new DataBlock<>(b));
         }
 
-        n++;
+
         DataBlock<T> last = getLastNonFull();
         last.append(a);
+        n++;
     }
 
 
@@ -145,17 +145,19 @@ public class Tarjan<T> implements ResizableArray<T>{
     }
 
     private DataBlock<T> getLastNonFull(){
-        int nBlocks = smallBlocks.length();
-        if (nBlocks - 2 >= 0 && !smallBlocks.get(nBlocks - 2).isFull())
-            return smallBlocks.get(nBlocks-2);
-        return smallBlocks.last();
+        int smallIdx = (n - largeIdx*b*b) / b;
+        //int nBlocks = smallBlocks.length();
+        //if (nBlocks - 2 >= 0 && !smallBlocks.get(nBlocks - 2).isFull())
+            //return smallBlocks.get(nBlocks-2);
+        return smallBlocks.get(smallIdx);
     }
 
     private DataBlock<T> getLastWithItems(){
-        DataBlock<T> last = smallBlocks.last();
-        if (last.isEmpty())
-            return smallBlocks.get(smallBlocks.length() - 2);
-        return last;
+        int smallIdx = (n - largeIdx*b*b) / b;
+        //DataBlock<T> last = smallBlocks.last();
+        //if (last.isEmpty())
+            //return smallBlocks.get(smallBlocks.length() - 2);
+        return smallBlocks.get(smallIdx);
     }
 
     private void rebuild(int newB){

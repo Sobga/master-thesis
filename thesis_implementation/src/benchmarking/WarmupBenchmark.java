@@ -7,42 +7,41 @@ import java.util.Map;
 
 import static utils.Utils.generateOperations;
 
-public class TotalTimeBenchmark extends Benchmark{
-    private final ResizableArray<Integer>[] arrays;
-
-    private final int N_WARMUP = 25;
+public class WarmupBenchmark extends Benchmark{
+    private final static int N_WARMUPS = 40;
     private final static int N_INTERVALS = 50;
+
     private final int[] intervals;
+
+    private final ResizableArray<Integer>[] arrays;
+    private final long[][] results;
+    private int resultIdx = 0;
+
     private final Map<String, Object> fields;
-    private final Map<ResizableArray<Integer>, long[]> results;
 
-    public TotalTimeBenchmark(ResizableArray<Integer>[] arrays, boolean randomizeOperation){
-        this.arrays = arrays;
-
-        // Prepare meta fields
+    public WarmupBenchmark(ResizableArray<Integer> array){
         fields = new HashMap<>();
-        fields.put("RANDOM_OPERATION", randomizeOperation);
+        arrays = new ResizableArray[N_WARMUPS];
+        results = new long[N_WARMUPS][N_INTERVALS];
 
+        intervals = new int[N_INTERVALS];
         int min =(int) 1E5;
         int max =(int) 1E7;
-        intervals = new int[N_INTERVALS];
         int delta = (max - min)/(N_INTERVALS-1);
         for (int i = 0; i < N_INTERVALS; i++)
             intervals[i] = delta*i + min;
 
         fields.put("INTERVALS", intervals);
-        fields.put("N_WARMUP", N_WARMUP);
+        fields.put("N_WARMUP", N_WARMUPS);
 
-        // Prepare result storage
-        results = new HashMap<>();
-        for (ResizableArray<Integer> array : arrays)
-            results.put(array, new long[intervals.length]);
 
+        for (int i = 0; i < N_WARMUPS; i++)
+            arrays[i] = array;
     }
 
     @Override
     public String getName() {
-        return "TotalTimeBenchmark";
+        return "WarmupBenchmark";
     }
 
     @Override
@@ -52,7 +51,7 @@ public class TotalTimeBenchmark extends Benchmark{
 
     @Override
     public Object getRecordedData(ResizableArray<Integer> array) {
-        return results.get(array);
+        return results[resultIdx++];
     }
 
     @Override
@@ -61,23 +60,19 @@ public class TotalTimeBenchmark extends Benchmark{
     }
 
     @Override
+    public String getArrayName(ResizableArray<Integer> array) {
+        return array.getName() +"("+ resultIdx + ")";
+    }
+
+    @Override
     public void run() {
         TotalTimeMeasurer measurer = new TotalTimeMeasurer();
-        Operation[] operations = generateOperations(intervals[intervals.length-1], (boolean) fields.get("RANDOM_OPERATION"));
+        Operation[] operations = generateOperations(intervals[intervals.length-1], false);
 
-        for (ResizableArray<Integer> array : arrays) {
-            // Warmup
-            for (int i = 0; i < N_WARMUP; i++) {
-                for (Operation operation : operations) {
-                    operation.applyOperation(array);
-                    array.clear();
-                }
-            }
-
-            // Store results
-            measurer.setArray(results.get(array));
-            measureIntervalOperations(array, operations, measurer, intervals);
-            array.clear();
+        for (int i = 0; i < N_WARMUPS; i++){
+            arrays[0].clear();
+            measurer.setArray(results[i]);
+            measureIntervalOperations(arrays[0], operations, measurer, intervals);
         }
     }
 

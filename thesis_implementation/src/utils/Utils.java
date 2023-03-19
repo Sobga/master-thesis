@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Utils {
+    private static final Random random = new Random();
     public static long slowMedian(long[] A){
         int n = A.length;
 
@@ -18,6 +19,8 @@ public class Utils {
 
         return (copy[(n-1)/2] + copy[n/2]) / 2;
     }
+
+    public static void setSeed(long seed){ random.setSeed(seed); }
 
     public static Operation[] generateOperations(int size, boolean doRandom){
         if (doRandom)
@@ -31,7 +34,7 @@ public class Utils {
 
     public static Operation[] generateOperations(int size, int wGrow, int wGet, int wSet, int wShrink){
         Operation[] operations = new Operation[size];
-        Random random = new Random();
+//        random.setSeed(0);
 
         int[] cumSum = new int[]{
                 wGet,
