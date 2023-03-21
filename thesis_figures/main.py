@@ -12,6 +12,7 @@ def plot_times(time_benchmark):
     fields = time_benchmark['FIELDS']
     g = sns.relplot(data=time_benchmark['df'], facet_kws={'legend_out': True})
     g._legend.set_title("Datastructures")
+    g._legend.remove()
     title = "Time pr. operation" if fields['RANDOM_OPERATION'] else "Time pr. growth operation"
     g.set(xlabel="Operation index", ylabel="Time [ns]", title=title)
     return g
@@ -27,26 +28,29 @@ def plot_total_time(time_benchmark):
     df = pd.DataFrame({**time_benchmark['DATA'], **{'SIZES': fields['INTERVALS']}})
     time_benchmark['df'] = df.melt('SIZES', var_name='COLS', value_name='VALS')
 
-    g = sns.relplot(data=time_benchmark['df'], x='SIZES', y='VALS', hue='COLS', kind='line', style='COLS', markers=True,
+    g = sns.relplot(data=time_benchmark['df'], x='SIZES', y='VALS', hue='COLS', kind='line', style='COLS',
                     facet_kws={'legend_out': True})
     g._legend.set_title("Datastructures")
+    # g._legend.remove()
 
-    title = "Overall time for random sequence" if fields['RANDOM_OPERATION'] else "Overall time for growth operations"
+    title = "Accumulated time for random sequence" if fields['RANDOM_OPERATION'] else "Accumulated time for growth operations"
     g.set(xlabel="Number of operations", ylabel="Time [ms]", title=title)
     return g
 
 
 def plot_memory(mem_benchmark):
+    fig, ax = plt.subplots()
     fields = mem_benchmark['FIELDS']
-    mem_benchmark['df'] = pd.DataFrame({**mem_benchmark['DATA'], **{'ACTUAL_SIZE': fields['ACTUAL_SIZE']}})
+    # mem_benchmark['DATA'].pop('ArrayList')
+    mem_benchmark['df'] = pd.DataFrame(mem_benchmark['DATA'])
 
-    g = sns.relplot(data=mem_benchmark['df'], facet_kws={'legend_out': True})
-    g._legend.set_title("Datastructures")
+    sns.lineplot(data=mem_benchmark['df'], ax=ax)
+    sns.lineplot(data=fields['ACTUAL_SIZE'], ax=ax, color='black', label='Actual size')
 
     title = "Memory consumption"
-    g.set(xlabel="Operation index", ylabel="Memory [Words]", title=title)
-
-    return g
+    ax.set(xlabel="Operation index", ylabel="Memory [Words]", title=title)
+    sns.despine()
+    return fig
 
 
 def plot_warmup(benchmark):
@@ -65,6 +69,7 @@ def plot_warmup(benchmark):
     title = "Warmup"
     g.set(xlabel="Number of operations", ylabel="Time [ms]", title=title)
     return g
+
 
 
 def plot_benchmark(benchmark):
@@ -96,7 +101,7 @@ def main():
         g = plot_benchmark(benchmark)
         name = benchmark['NAME']
         g.savefig(f'Figures/{name}_{idx}.png', format='png')
-    # plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':

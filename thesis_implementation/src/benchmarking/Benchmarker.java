@@ -94,9 +94,9 @@ public class Benchmarker {
 
         // Selected benchmarks
         Benchmark[] benchmarks = new Benchmark[]{
-            new WarmupBenchmark(new Brodnik<>()),
-            new TimeBenchmark(arrays, false),
-            new TotalTimeBenchmark(arrays, false),
+//            new WarmupBenchmark(new Brodnik<>()),
+//            new TimeBenchmark(arrays, false),
+//            new TotalTimeBenchmark(arrays, false),
             new MemoryBenchmark(arrays)
         };
 

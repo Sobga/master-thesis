@@ -5,11 +5,8 @@ public class MemoryLookup {
     public static long wordSize(Object o){
         if (o == null)
             return 0;
-        if (o instanceof Integer)
-            return WORD_SIZE;
-        if (o instanceof Long)
-            return WORD_SIZE;
-        if (o instanceof Float)
+
+        if (isPrimitive(o))
             return WORD_SIZE;
 
         if (o instanceof WordCountable)

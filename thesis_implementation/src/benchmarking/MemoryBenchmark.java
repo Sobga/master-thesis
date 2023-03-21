@@ -12,9 +12,8 @@ public class MemoryBenchmark extends Benchmark {
     private final ResizableArray<Integer>[] arrays;
     private final Map<ResizableArray<Integer>, long[]> results;
     private final Map<String, Object> fields;
-
-    private final int TEST_SIZE = (int) 1E4;
-
+    private final int TEST_SIZE = (int) 1E5;
+    private final int SHRINK_COUNT = 0;
 
     public MemoryBenchmark(ResizableArray<Integer>[] arrays){
         this.arrays = arrays;
@@ -51,7 +50,6 @@ public class MemoryBenchmark extends Benchmark {
     @Override
     public void run() {
 //        Operation[] operations = generateOperations(TEST_SIZE, 1, 0, 0, 1);
-        int SHRINK_COUNT = 4000;
         Operation[] operations = growShrink(TEST_SIZE - SHRINK_COUNT, SHRINK_COUNT);
         MemoryMeasurer measurer = new MemoryMeasurer();
         // Compute baseline size
