@@ -1,5 +1,6 @@
 package benchmarking;
 
+import benchmarking.measurers.Measurer;
 import resizableArrays.ResizableArray;
 
 import java.util.HashMap;
@@ -76,7 +77,7 @@ public class WarmupBenchmark extends Benchmark{
         }
     }
 
-    static class TotalTimeMeasurer extends Measurer{
+    static class TotalTimeMeasurer extends Measurer {
         private long tStart;
         private long[] measurements;
         private int idx;

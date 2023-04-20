@@ -47,11 +47,10 @@ public class Brodnik<T> implements ResizableArray<T>{
 
         if (lastBlock.isFull()){
             // If last block is full, create new and add the item there
-            DataBlock<T> newBlock = new DataBlock<>(lastBlock.size() + 1);
-            blocks.grow(newBlock);
-            newBlock.append(a);
-        } else
-            lastBlock.append(a);
+            lastBlock = new DataBlock<>(lastBlock.size() + 1);
+            blocks.grow(lastBlock);
+        }
+        lastBlock.append(a);
     }
 
     @Override
@@ -69,6 +68,42 @@ public class Brodnik<T> implements ResizableArray<T>{
     }
 
     @Override
+    public long countedGrow(T a) {
+        long size = MemoryLookup.wordSize(n);
+
+        n++;
+        // Find last-block
+        DataBlock<T> lastBlock = blocks.last();
+
+        if (lastBlock.isFull()){
+            // If last block is full, create new and add the item there
+            lastBlock = new DataBlock<>(lastBlock.size() + 1);
+            size += blocks.countedGrow(lastBlock);
+        } else {
+            size += blocks.wordCount();
+        }
+        lastBlock.append(a);
+        return size;
+    }
+
+    @Override
+    public long countedShrink() {
+        long size = MemoryLookup.wordSize(n);
+        n--;
+        // Find last-block
+        DataBlock<T> lastBlock = blocks.last();
+
+        if (lastBlock.isEmpty()){
+            size += blocks.countedShrink(); // Remove empty block
+            lastBlock = blocks.last();
+        } else
+            size += MemoryLookup.wordSize(blocks);
+        lastBlock.pop();
+
+        return size;
+    }
+
+    @Override
     public void clear() {
         n = 0;
         blocks.clear();
@@ -76,7 +111,7 @@ public class Brodnik<T> implements ResizableArray<T>{
     }
 
     @Override
-    public long byteCount() {
-        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(blocks);
+    public long wordCount() {
+        return MemoryLookup.wordSize(n) + blocks.wordCount();
     }
 }

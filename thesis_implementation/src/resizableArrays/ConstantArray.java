@@ -1,6 +1,7 @@
 package resizableArrays;
 
 import memory.MemoryLookup;
+import memory.WordCountable;
 
 import java.util.Arrays;
 
@@ -10,18 +11,26 @@ public class ConstantArray<T> implements ResizableArray<T>{
     T[] items;
     int n = 0;
     final float scale;
-    Class<T> tClass;
 
     public ConstantArray(float alpha){
-        this.tClass = tClass;
         this.scale = 1 + alpha;
-        items = createTypedArray(1);
+        clear();
     }
+
+    @Override
+    public void clear() {
+        items = createTypedArray(1);
+        n = 0;
+    }
+
 
     @Override
     public String getName() {
         return "ConstantArray-" + (scale-1);
     }
+
+
+
 
     @Override
     public int length() {
@@ -36,6 +45,11 @@ public class ConstantArray<T> implements ResizableArray<T>{
     @Override
     public void set(int i, T a) {
         items[i] = a;
+    }
+
+    @Override
+    public T last(){
+        return items[n-1];
     }
 
     @Override
@@ -61,19 +75,54 @@ public class ConstantArray<T> implements ResizableArray<T>{
     }
 
     @Override
-    public void clear() {
-        items = createTypedArray(1);
-        n = 0;
+    public long countedGrow(T a) {
+        long size = wordCount();
+        if (n >= items.length) {
+            items = Arrays.copyOf(items, (int) Math.ceil(scale * items.length));
+            size += items.length;
+        }
+        items[n++] = a;
+
+        return size;
     }
 
     @Override
-    public long byteCount() {
-        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(scale) + MemoryLookup.wordSize(items);
+    public long countedShrink() {
+        long size = wordCount();
+
+        // Array is too empty
+        if (n <= items.length / (scale * scale)) {
+            items = Arrays.copyOf(items, (int) Math.ceil(items.length / scale));
+            size += items.length;
+        }
+
+        // Find and delete last item
+        T ret = items[n-1];
+        items[n-1] = null;
+        n--;
+
+        return size;
+    }
+
+    @Override
+    public long wordCount() {
+        long res = MemoryLookup.wordSize(n) + items.length;
+        if (n > 0 && !MemoryLookup.isPrimitive(items[0])){
+            if (items[0] instanceof WordCountable)
+                for (int i = 0; i < n; i++)
+                    res += ((WordCountable) items[i]).wordCount();
+            else
+                for (int i = 0; i < n; i++)
+                    res += MemoryLookup.wordSize(items[i]);
+        }
+
+        assert MemoryLookup.wordSize(n) + MemoryLookup.wordSize(items) == res;
+        return res;
     }
 
     @Override
     public String toString() {
-        return "ResizableArrays.ConstantArray{" +
+        return "ConstantArray{" +
                 "n=" + n +
                 ", items=" + Arrays.toString(items) +
                 '}';

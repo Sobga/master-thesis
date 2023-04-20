@@ -5,15 +5,17 @@ import memory.WordCountable;
 import utils.Utils;
 
 public class CyclicArray<T> implements WordCountable {
-    T[] items;
-    int mask;
-    int start;
-    int n;
+    private final T[] items;
+    private final int mask;
+    private int start;
+    private int n;
+    private int lastPattern;
 
     // Assumes length is a power of two
     public CyclicArray(int length){
         items = Utils.createTypedArray(length);
         mask = length - 1;
+        lastPattern = start - 1 + items.length;
     }
 
     public final int length(){
@@ -31,20 +33,24 @@ public class CyclicArray<T> implements WordCountable {
     }
 
     public final void append(T a){
+        assert n < items.length;
         items[(start + n) & mask] = a;
         n++;
     }
 
     public final T removeFirst(){
+        assert n > 0;
         T ret = items[start];
         items[start] = null;
         start = (start+1) & mask;
+        lastPattern = start - 1 + items.length;
         n--;
         return ret;
     }
 
     public final T removeLast(){
-        int idx = (start + n - 1 + items.length) & mask;
+        assert n > 0;
+        int idx = (n+lastPattern) & mask;
         T ret = items[idx];
         items[idx] = null;
         n--;
@@ -52,7 +58,7 @@ public class CyclicArray<T> implements WordCountable {
     }
 
     public final T last(){
-        return items[(start + n - 1 + items.length) & mask];
+        return items[(n+lastPattern) & mask];
     }
 
     public final void clear(){
@@ -63,7 +69,7 @@ public class CyclicArray<T> implements WordCountable {
 
 
     @Override
-    public long byteCount() {
+    public long wordCount() {
         return  MemoryLookup.wordSize(mask) +
                 MemoryLookup.wordSize(start) +
                 MemoryLookup.wordSize(n) +

@@ -42,7 +42,7 @@ public class ResArrayList<T> implements ResizableArray<T>{
     }
 
     @Override
-    public final long byteCount() {
+    public final long wordCount() {
         return -1;
     }
 

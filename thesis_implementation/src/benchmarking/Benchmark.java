@@ -1,17 +1,25 @@
 package benchmarking;
 
+import benchmarking.measurers.Measurer;
 import resizableArrays.ResizableArray;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Benchmark {
+    private Map<String, Object> fields;
+
+    public Benchmark(){
+        fields = new HashMap<>();
+    }
+    void addField(String name, Object object){ fields.put(name, object);}
+    Object getField(String name){return fields.get(name);}
+
     public abstract String getName();
     public abstract ResizableArray<Integer>[] getArrays(); // Recorded data for each datastructure
     public abstract Object getRecordedData(ResizableArray<Integer> array); // Recorded data for each datastructure
-    public abstract Map<String, Object> getJSONFields(); // Auxiliary fields
+    public Map<String, Object> getJSONFields(){return fields;}; // Auxiliary fields
     public abstract void run();
-
-
     public String getArrayName(ResizableArray<Integer> array){
         return array.getName();
     }
@@ -64,12 +72,6 @@ public abstract class Benchmark {
         }
         measurer.end();
     }
-}
-
-abstract class Measurer {
-    public abstract void start();
-    public abstract Object end();
-    public abstract void store(ResizableArray<Integer> array, Object result);
 }
 
 

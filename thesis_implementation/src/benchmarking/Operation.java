@@ -20,14 +20,21 @@ public class Operation {
             }
             case SET -> {
                 array.set(idx, data);
+                return -1;
             }
             case GROW -> {
                 array.grow(data);
+                return -1;
             }
             case SHRINK -> {
                 return array.shrink();
             }
         }
         return -1;
+    }
+
+    @Override
+    public String toString() {
+        return "OP{" + op + '}';
     }
 }

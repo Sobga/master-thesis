@@ -51,7 +51,14 @@ class DataBlock<T> implements WordCountable {
     }
 
     @Override
-    public long byteCount() {
-        return MemoryLookup.wordSize(n) + MemoryLookup.wordSize(items);
+    public long wordCount() {
+        /*long res = 1 + items.length;
+        /if (n > 0 && !MemoryLookup.isPrimitive(items[0])){
+            // Assumes all stored objects are of same size
+            res += MemoryLookup.wordSize(items[0]) * n;
+        }*/
+
+        //assert MemoryLookup.wordSize(n) + MemoryLookup.wordSize(items) == res;
+        return items.length + 1;
     }
 }

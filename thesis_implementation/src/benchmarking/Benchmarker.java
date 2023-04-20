@@ -83,27 +83,37 @@ public class Benchmarker {
     public void run(){
         ResizableArray<Integer>[] arrays = new ResizableArray[]
                 {
-                        new ResArrayList<Integer>(),
-                        new ConstantArray<Integer>(1),
-                        new ConstantLazyArray<Integer>(1),
-                        new Brodnik<Integer>(),
+                        //new ResArrayList<Integer>(),
+                        //new ConstantArray<Integer>(1),
+                        //new ConstantLazyArray<Integer>(1),
+                        //new Brodnik<Integer>(),
                         new BrodnikPowerTwo<Integer>(),
                         new Sitarski<Integer>(),
-                        new Tarjan<Integer>()
+                        new Tarjan<Integer>(),
+                        new TestArray<Integer>()
                 };
 
         // Selected benchmarks
         Benchmark[] benchmarks = new Benchmark[]{
 //            new WarmupBenchmark(new Brodnik<>()),
-//            new TimeBenchmark(arrays, false),
-//            new TotalTimeBenchmark(arrays, false),
-            new MemoryBenchmark(arrays)
+            //new TimeBenchmark(arrays, false),
+            //new TotalTimeBenchmark(arrays, false),
+            //new IndexingBenchmark(arrays),
+//            new IncreasingIndexingBenchmark(arrays),
+            //new RebuildMemoryBenchmark(arrays),
+            //new RebuildMemoryBenchmark(arrays, (int) 1E6, 0, (int) 1E6),
+            new MemoryBenchmark(arrays, 0, 3*(int) 1E6, 0),
+            //new MemoryBenchmark(arrays, (int) 1E6, 0, (int) 1E6),
         };
 
         // Perform benchmarks
         for (Benchmark benchmark: benchmarks){
             System.out.println("Running benchmark: " + benchmark.getName());
             benchmark.run();
+
+            // Clean for next benchmark
+            for (ResizableArray<Integer> array: arrays)
+                array.clear();
         }
 
 

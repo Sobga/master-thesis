@@ -1,5 +1,6 @@
 package benchmarking;
 
+import benchmarking.measurers.Measurer;
 import resizableArrays.ResizableArray;
 import utils.Utils;
 
@@ -10,11 +11,10 @@ import static utils.Utils.generateOperations;
 
 public class TimeBenchmark extends Benchmark{
     private final int N_TRIALS = 10;
-    private final int TEST_SIZE = (int) 1E4;
+    private final int TEST_SIZE = (int) 1E5;
 
     private final ResizableArray<Integer>[] arrays;
     private final Map<ResizableArray<Integer>, long[]> results;
-    private final Map<String, Object> fields;
 
     public TimeBenchmark(ResizableArray<Integer>[] arrays, boolean randomOperation){
         this.arrays = arrays;
@@ -25,9 +25,8 @@ public class TimeBenchmark extends Benchmark{
             results.put(array, new long[TEST_SIZE]);
 
         // Register relevant fields
-        fields = new HashMap<>();
-        fields.put("N_TRIALS", N_TRIALS);
-        fields.put("RANDOM_OPERATION", randomOperation);
+        addField("N_TRIALS", N_TRIALS);
+        addField("RANDOM_OPERATION", randomOperation);
     }
 
     @Override
@@ -47,17 +46,11 @@ public class TimeBenchmark extends Benchmark{
 
 
     @Override
-    public Map<String, Object> getJSONFields() {
-        return fields;
-    }
-
-
-    @Override
     public void run() {
         long[][] timeArr = new long[TEST_SIZE][N_TRIALS];
         TimeMeasurer measurer = new TimeMeasurer(timeArr);
 
-        Operation[] operations = generateOperations(TEST_SIZE, (boolean) fields.get("RANDOM_OPERATION"));
+        Operation[] operations = generateOperations(TEST_SIZE, (boolean) getField("RANDOM_OPERATION"));
 
         for (ResizableArray<Integer> array: arrays){
             // Warmup
@@ -79,7 +72,7 @@ public class TimeBenchmark extends Benchmark{
         }
     }
 
-    static class TimeMeasurer extends Measurer{
+    static class TimeMeasurer extends Measurer {
         private final long[][] timeArr;
         private long tStart;
         private int i;

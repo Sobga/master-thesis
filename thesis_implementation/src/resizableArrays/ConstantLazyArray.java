@@ -71,6 +71,44 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
         return ret;
     }
 
+    @Override
+    public long countedGrow(T a) {
+        // Are we re-sizing?
+        if (n >= items.length){
+//            assert (moveIdx == oldItems.length || moveIdx == items.length); // Have all items been moved over?
+            oldItems = items;
+            items = createTypedArray((int)Math.ceil(scale * items.length));
+            moveIdx = 0;
+            oldN = n;
+        }
+
+        moveItem();
+
+        // Insert item
+        set(n++, a);
+        return wordCount();
+    }
+
+    @Override
+    public long countedShrink() {
+        // Are we re-sizing?
+        if (n <= items.length / (scale*scale)){
+//            assert (moveIdx == oldItems.length || moveIdx == items.length); // Have all items been moved over?
+            oldItems = items;
+            items = createTypedArray((int) Math.ceil(items.length / scale));
+            moveIdx = 0;
+            oldN = n;
+        }
+        n--;
+
+        moveItem();
+
+        // Find and remove last item
+        T ret = get(n);
+        set(n, null);
+        return wordCount();
+    }
+
     private void moveItem(){
         // Move one item over, if need be
         if (moveIdx < oldN && moveIdx < items.length){
@@ -90,11 +128,19 @@ public class ConstantLazyArray<T> extends ConstantArray<T>{
     }
 
     @Override
-    public long byteCount() {
-        return super.byteCount() +
-                MemoryLookup.wordSize(oldItems) +
-                MemoryLookup.wordSize(moveIdx) +
-                MemoryLookup.wordSize(oldN);
+    public long wordCount() {
+        long res =  MemoryLookup.wordSize(n) + items.length +
+                    MemoryLookup.wordSize(moveIdx) +
+                    MemoryLookup.wordSize(oldN);
+
+        if (oldItems != null)
+            res += oldItems.length;
+
+        if (n > 0 && !MemoryLookup.isPrimitive(get(0))){
+            for (int i = 0; i < n; i++)
+                res += MemoryLookup.wordSize(get(i));
+        }
+        return res;
     }
 
     @Override

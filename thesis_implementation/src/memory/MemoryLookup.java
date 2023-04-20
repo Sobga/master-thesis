@@ -6,18 +6,20 @@ public class MemoryLookup {
         if (o == null)
             return 0;
 
+        if (o instanceof WordCountable)
+            return ((WordCountable) o).wordCount();
+
         if (isPrimitive(o))
             return WORD_SIZE;
-
-        if (o instanceof WordCountable)
-            return ((WordCountable) o).byteCount();
 
         if (o.getClass().isArray()){
             Object[] oArr = (Object[]) o;
             long sum = WORD_SIZE * oArr.length;
-            for (int i = 0; i < oArr.length; i++)
-                if (!isPrimitive(oArr[i]))
-                    sum += wordSize(oArr[i]);
+
+            if (!isPrimitive(oArr[0])) {
+                for (Object obj : oArr)
+                    sum += wordSize(obj);
+            }
             return sum;
 
         }
