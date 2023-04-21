@@ -3,18 +3,23 @@ package resizableArrays;
 import utils.Utils;
 
 public class TestArray<T> implements ResizableArray<T>{
-    private ResizableArray<DataBlock<T>> largeBlocks;
-    private BrodnikPowerTwo<T> smallBlocks;
+    private final ResizableArray<DataBlock<T>> largeBlocks;
+    private final BrodnikPowerTwo<T> smallBlocks;
+    private final float alpha;
     private int n;
     private int k = 0;
+    private int itemsInLarge;
     private int blocksInSuper = 0;
-    private final float alpha = 2f/3f;
-    private int smallItems = 0;
-    private static int LARGE_MASK = 0;
+
+    private int nextSize = 0;
+    private int maxBlocks = 0;
 
     public TestArray(){
-        for (int i = 0; i < 16; i++)
-            LARGE_MASK |= 1 << 2*i;
+        this(2f/3f);
+    }
+
+    public TestArray(float alpha){
+        this.alpha = alpha;
         largeBlocks = new ConstantArray<>(1.0f);
         smallBlocks = new BrodnikPowerTwo<>();
         clear();
@@ -22,7 +27,12 @@ public class TestArray<T> implements ResizableArray<T>{
 
     @Override
     public void clear() {
-        smallItems = 0;
+        n = 0;
+        k = 0;
+        blocksInSuper = 0;
+        itemsInLarge = 0;
+        nextSize = 1 << (int) Math.ceil(alpha*k);
+        maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
         largeBlocks.clear();
         smallBlocks.clear();
     }
@@ -34,7 +44,7 @@ public class TestArray<T> implements ResizableArray<T>{
 
     @Override
     public T get(int i) {
-        int itemsInLarge = LARGE_MASK & ((1 << 2*largeBlocks.length()) - 1);
+        /*int itemsInLarge = LARGE_MASK & ((1 << 2*largeBlocks.length()) - 1);
 
         if (i < itemsInLarge){
             int kPrime = 32-Integer.numberOfLeadingZeros(i);
@@ -44,7 +54,25 @@ public class TestArray<T> implements ResizableArray<T>{
         }
 
 
-        return smallBlocks.get(i - itemsInLarge);
+        return smallBlocks.get(i - itemsInLarge);*/
+
+        if (i >= itemsInLarge)
+            return smallBlocks.get(i - itemsInLarge);
+
+        int r = i + 1;
+
+        // Superblock idx
+        int kPrime = (31-Integer.numberOfLeadingZeros(r));
+        int datablocksBefore = datablocksBefore(kPrime);
+        int idxBits = (int) Math.ceil(alpha * kPrime);
+
+        // Find datablock in superblock
+        int blocksBefore = Utils.removeHighestSetBit(r) >> idxBits;
+        DataBlock<T> block = largeBlocks.get(datablocksBefore+blocksBefore);
+
+        // Find index in datablock
+        int blockIdx = r & ((1 << idxBits) - 1);
+        return block.items[blockIdx];
     }
 
     @Override
@@ -52,35 +80,43 @@ public class TestArray<T> implements ResizableArray<T>{
 
     }
 
+    private int datablocksBefore(int kPrev){
+        /*double b = 1 - alpha;
+        double top = Math.pow(2, b*kPrev + b) - 1;
+        double bot = Math.pow(2, b) - 1;
+        return (int) (top / bot);*/
+        int res = 0;
+        for (int i = 0; i < kPrev; i++)
+            res += 1 << (int) Math.floor((1-alpha)*(i+0.1));
+        return res;
+    }
+
     @Override
     public void grow(T a) {
         //int nextSize = 1 << (largeBlocks.length()/4);
 //        int nextSize = largeBlocks.length() * largeBlocks.length();
-        int nextSize = 1 << (int) Math.ceil(alpha*k);
+
         // Big enough for another large block
-        if (smallItems >= nextSize){
+        if (smallBlocks.length() >= nextSize){
 
             // Move all items in small blocks over
-            T[] items = Utils.createTypedArray(nextSize);
-            int i = 0;
-            for (T item: smallBlocks)
-                items[i++] = item;
+            T[] items = smallBlocks.asArray();
             DataBlock<T> newBlock = new DataBlock<>(items, nextSize);
             largeBlocks.grow(newBlock);
+            itemsInLarge += nextSize;
+            blocksInSuper++;
 
             // Clear all small items
-            smallItems = 0;
             smallBlocks.clear();
-
-            int maxBlocks = 1 << (int) Math.floor((1-alpha)*k);
-            if (++blocksInSuper > maxBlocks){
+            if (blocksInSuper >= maxBlocks){
                 k++;
                 blocksInSuper = 0;
+                nextSize = 1 << (int) Math.ceil(alpha*k);
+                maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
             }
         }
 
         smallBlocks.grow(a);
-        smallItems++;
         n++;
     }
 

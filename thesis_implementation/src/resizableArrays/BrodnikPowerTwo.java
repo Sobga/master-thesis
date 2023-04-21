@@ -26,8 +26,9 @@ public class BrodnikPowerTwo<T> implements ResizableArray<T>{
         int r = i + 1;
         int kPrime = (31-Integer.numberOfLeadingZeros(r));
 
-        int b = removeHighestSetBit(r) >> ((kPrime+1)/2);   // floor(k/2) highest bits of r, after leading 1
-        int e = r & ((1 << (kPrime+1) / 2) - 1);            //  Bitmask to extract ceil(k/2) lower bits of r
+        int kPrimeHalf = ((kPrime+1)/2);
+        int b = removeHighestSetBit(r) >> kPrimeHalf;   // floor(k/2) highest bits of r, after leading 1
+        int e = r & ((1 << kPrimeHalf) - 1);            //  Bitmask to extract ceil(k/2) lower bits of r
 
 //        int p = (1 << kPrime) - 1;
         int p = prevBlockSize(kPrime);

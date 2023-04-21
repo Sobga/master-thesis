@@ -1,6 +1,7 @@
 package resizableArrays;
 
 import memory.WordCountable;
+import utils.Utils;
 
 import java.util.Iterator;
 
@@ -21,6 +22,13 @@ public interface ResizableArray<T> extends WordCountable, Iterable<T> {
     default T last(){return get(length() - 1);}
     default DataBlock<T>[] allocateDatablocks(int size){
         return (DataBlock<T>[]) new DataBlock[size];
+    }
+
+    default T[] asArray(){
+        T[] arr = Utils.createTypedArray(length());
+        for (int i = 0, stop = length(); i < stop; i++)
+            arr[i] = get(i);
+        return arr;
     }
 
     @Override

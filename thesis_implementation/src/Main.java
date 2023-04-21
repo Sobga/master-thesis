@@ -15,12 +15,12 @@ public class Main {
 
         // Resizable Arrays to test
         ArrayList<ResizableArray<Integer>> arrays = new ArrayList<>();
-        arrays.add(baseline);
+        //arrays.add(baseline);
 //        arrays.add(new ConstantArray<>(1));
 //        arrays.add(new ConstantLazyArray<>(1));
 //        arrays.add(new Brodnik<>());
         //arrays.add(new Tarjan<>());
-//        arrays.add(new BrodnikPowerTwo<>());
+        arrays.add(new BrodnikPowerTwo<>());
 //        arrays.add(new Sitarski<>());
         arrays.add(new TestArray<>());
         // Generate random operations
@@ -29,7 +29,7 @@ public class Main {
         System.out.println("Seed: " + seed);
         Utils.setSeed(seed);
 
-        int n = (int) 1E5;
+        int n = (int) 1E6;
         /*for (ResizableArray<Integer> array : arrays){
             for (int i = 0; i < n; i++) {
                 array.grow(i);
@@ -65,11 +65,16 @@ public class Main {
             if (array == baseline)
                 continue;
             Iterator<Integer> baseIterator = baseline.iterator();
-            Iterator<Integer> arrayIterator = baseline.iterator();
+            Iterator<Integer> arrayIterator = array.iterator();
 
-            while (baseIterator.hasNext())
-                if (baseIterator.next().equals(arrayIterator.next()))
+            while (baseIterator.hasNext()) {
+                int baseItem = baseIterator.next();
+                int arrayItem = arrayIterator.next();
+                if (baseItem != arrayItem) {
+                    System.out.println("Error, got " + arrayItem + " should have been " + baseItem);
                     return false;
+                }
+            }
         }
         return true;
     }

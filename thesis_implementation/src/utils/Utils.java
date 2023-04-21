@@ -149,6 +149,10 @@ public class Utils {
         return 31 - Integer.numberOfLeadingZeros( bits );
     }
 
+    public static int removeHighestSetBit(int x){
+        return x & (Integer.highestOneBit(x)-1);
+    }
+
     // https://stackoverflow.com/a/600306
     public static boolean isPowerOfTwo(int x) {
         return (x & (x - 1)) == 0;
