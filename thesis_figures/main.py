@@ -41,6 +41,23 @@ def plot_total_time(time_benchmark):
     return fig
 
 
+def plot_boxplot_time(benchmark):
+    fig, ax = plt.subplots()
+
+    # Rescale measurements from ns to ms
+    for arr in benchmark['DATA'].values():
+        for i in range(len(arr)):
+            arr[i] /= 1E6
+
+    df = pd.DataFrame(benchmark['DATA'])
+    palette = {key: lookup_style(key)[0] for key in benchmark['DATA'].keys()}
+    palette['BrodnikPowerTwo'] = 'white'
+    sns.boxplot(df, ax=ax, palette=palette)
+    fig.autofmt_xdate(rotation=20)
+    ax.set(xlabel="Resizable array", ylabel="Time [ms]", title="Time to complete $10^7$ growth operations")
+    return fig
+
+
 def plot_indexing(benchmark):
     fig, ax = plt.subplots()
 
@@ -80,8 +97,40 @@ def plot_increasing_indexing(benchmark):
     return g
 
 
+def plot_boxplot_indexing(benchmark):
+    fig, ax = plt.subplots()
+
+    # Rescale measurements from ns to ms
+    for arr in benchmark['DATA'].values():
+        for i in range(len(arr)):
+            arr[i] /= 1E6
+
+    df = pd.DataFrame(benchmark['DATA'])
+    palette = {key: lookup_style(key)[0] for key in benchmark['DATA'].keys()}
+    palette['BrodnikPowerTwo'] = 'white'
+    sns.boxplot(df, ax=ax, palette=palette, showfliers=False)
+    fig.autofmt_xdate(rotation=20)
+    ax.set(xlabel="Resizable array", ylabel="Time [ms]", title="Time to complete $10^7$ indexing operations")
+    return fig
+
+def plot_boxplot_shrinking(benchmark):
+    fig, ax = plt.subplots()
+
+    # Rescale measurements from ns to ms
+    for arr in benchmark['DATA'].values():
+        for i in range(len(arr)):
+            arr[i] /= 1E6
+
+    df = pd.DataFrame(benchmark['DATA'])
+    palette = {key: lookup_style(key)[0] for key in benchmark['DATA'].keys()}
+    palette['BrodnikPowerTwo'] = 'white'
+    sns.boxplot(df, ax=ax, palette=palette, showfliers=False)
+    fig.autofmt_xdate(rotation=20)
+    ax.set(xlabel="Resizable array", ylabel="Time [ms]", title="Time to complete $10^7$ shrinking operations")
+    return fig
+
+
 def plot_memory(mem_benchmark):
-    mem_benchmark['DATA'].pop('ArrayList', None)
     fields = mem_benchmark['FIELDS']
 
     # Remove the overhead
@@ -91,6 +140,7 @@ def plot_memory(mem_benchmark):
             data[i] -= actual_size[i]
 
     fig_a = memory_plots(mem_benchmark)
+    mem_benchmark['DATA'].pop('ArrayList', None)
     mem_benchmark['DATA'].pop('ConstantArray-1.0', None)
     mem_benchmark['DATA'].pop('ConstantLazyArray-1.0', None)
 
@@ -114,7 +164,8 @@ def memory_plots(mem_benchmark):
         title += " - Shrink operations"
     ax.set(xlabel="Number of items stored", ylabel="Memory [Words]", title=title)
 
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=5)
+    #ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=5)
+    ax.legend()
     return fig
 
 
@@ -175,6 +226,9 @@ def plot_benchmark(benchmark):
     if 'TotalTime' in name:
         return plot_total_time(benchmark)
         pass
+    elif 'TimeBoxPlot' in name:
+        return plot_boxplot_time(benchmark)
+        pass
     elif 'Time' in name:
         return plot_times(benchmark)
         pass
@@ -190,8 +244,13 @@ def plot_benchmark(benchmark):
     elif 'IncreasingIndexing' in name:
         return plot_increasing_indexing(benchmark)
         pass
+    elif 'IndexingBoxPlot' in name:
+        return plot_boxplot_indexing(benchmark)
     elif 'Indexing' in name:
         return plot_indexing(benchmark)
+        pass
+    elif 'Shrink' in name:
+        return plot_boxplot_shrinking(benchmark)
         pass
     else:
         raise Exception("No plot found for " + benchmark['NAME'])
@@ -216,7 +275,8 @@ def main():
                 f.savefig(f'Figures/{name}_{idx}_{j}.png', format='png')
         else:
             fig.savefig(f'Figures/{name}_{idx}.png', format='png')
-    plt.show()
+    # plt.show()
+
 
 if __name__ == '__main__':
     main()

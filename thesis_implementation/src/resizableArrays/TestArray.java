@@ -1,10 +1,12 @@
 package resizableArrays;
 
+import memory.WordCountable;
 import utils.Utils;
 
 public class TestArray<T> implements ResizableArray<T>{
-    private final ResizableArray<DataBlock<T>> largeBlocks;
-    private final BrodnikPowerTwo<T> smallBlocks;
+    private final ResizableArray<T[]> largeBlocks;
+    private final ResizableArray<SuperblockInfo> superInfo;
+    private final CyclicDatablockArray<T> smallBlocks;
     private final float alpha;
     private int n;
     private int k = 0;
@@ -20,8 +22,9 @@ public class TestArray<T> implements ResizableArray<T>{
 
     public TestArray(float alpha){
         this.alpha = alpha;
+        superInfo = new ConstantArray<>(1.0f);
         largeBlocks = new ConstantArray<>(1.0f);
-        smallBlocks = new BrodnikPowerTwo<>();
+        smallBlocks = new CyclicDatablockArray<>(1);
         clear();
     }
 
@@ -35,6 +38,34 @@ public class TestArray<T> implements ResizableArray<T>{
         maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
         largeBlocks.clear();
         smallBlocks.clear();
+        superInfo.clear();
+        superInfo.grow(new SuperblockInfo(0));
+    }
+
+    class SuperblockInfo implements WordCountable {
+        final int dataBlocksBefore;
+        final int idxBits;
+        final int blockMask;
+
+        public SuperblockInfo(int k){
+            dataBlocksBefore = datablocksBefore(k);
+            idxBits = (int) Math.ceil(alpha * k);
+            blockMask = ((1 << idxBits) - 1);
+        }
+
+        @Override
+        public String toString() {
+            return "SBI{"
+                    + dataBlocksBefore +
+                    ", " + idxBits +
+                    ", " + blockMask +
+                    '}';
+        }
+
+        @Override
+        public long wordCount() {
+            return 3;
+        }
     }
 
     @Override
@@ -44,18 +75,6 @@ public class TestArray<T> implements ResizableArray<T>{
 
     @Override
     public T get(int i) {
-        /*int itemsInLarge = LARGE_MASK & ((1 << 2*largeBlocks.length()) - 1);
-
-        if (i < itemsInLarge){
-            int kPrime = 32-Integer.numberOfLeadingZeros(i);
-            int largeIdx = (kPrime + 1) / 2;
-            int itemsBefore = LARGE_MASK & ((1 << largeIdx) - 1);
-            return largeBlocks.get(largeIdx).items[i - itemsBefore];
-        }
-
-
-        return smallBlocks.get(i - itemsInLarge);*/
-
         if (i >= itemsInLarge)
             return smallBlocks.get(i - itemsInLarge);
 
@@ -68,23 +87,35 @@ public class TestArray<T> implements ResizableArray<T>{
 
         // Find datablock in superblock
         int blocksBefore = Utils.removeHighestSetBit(r) >> idxBits;
-        DataBlock<T> block = largeBlocks.get(datablocksBefore+blocksBefore);
+        T[] block = largeBlocks.get(datablocksBefore+blocksBefore);
 
         // Find index in datablock
         int blockIdx = r & ((1 << idxBits) - 1);
-        return block.items[blockIdx];
+        return block[blockIdx];
     }
 
     @Override
     public void set(int i, T a) {
+        if (i >= itemsInLarge) {
+            smallBlocks.set(i - itemsInLarge, a);
+            return;
+        }
 
+        int r = i + 1;
+
+        // Superblock idx
+        int kPrime = (31-Integer.numberOfLeadingZeros(r));
+        SuperblockInfo blockInfo = superInfo.get(kPrime);
+
+        int blocksBefore = Utils.removeHighestSetBit(r) >> blockInfo.idxBits;
+        T[] block = largeBlocks.get(blockInfo.dataBlocksBefore + blocksBefore);
+
+        int blockIdx = r & blockInfo.blockMask;
+
+        block[blockIdx] = a;
     }
 
     private int datablocksBefore(int kPrev){
-        /*double b = 1 - alpha;
-        double top = Math.pow(2, b*kPrev + b) - 1;
-        double bot = Math.pow(2, b) - 1;
-        return (int) (top / bot);*/
         int res = 0;
         for (int i = 0; i < kPrev; i++)
             res += 1 << (int) Math.floor((1-alpha)*(i+0.1));
@@ -93,36 +124,116 @@ public class TestArray<T> implements ResizableArray<T>{
 
     @Override
     public void grow(T a) {
-        //int nextSize = 1 << (largeBlocks.length()/4);
-//        int nextSize = largeBlocks.length() * largeBlocks.length();
-
         // Big enough for another large block
-        if (smallBlocks.length() >= nextSize){
-
+        if (smallBlocks.isFull()){
             // Move all items in small blocks over
-            T[] items = smallBlocks.asArray();
-            DataBlock<T> newBlock = new DataBlock<>(items, nextSize);
-            largeBlocks.grow(newBlock);
+            T[] items = smallBlocks.removeKLast(nextSize);
+            largeBlocks.grow(items);
             itemsInLarge += nextSize;
             blocksInSuper++;
 
-            // Clear all small items
-            smallBlocks.clear();
             if (blocksInSuper >= maxBlocks){
+                // Start of a new superblock
                 k++;
+                superInfo.grow(new SuperblockInfo(k));
                 blocksInSuper = 0;
                 nextSize = 1 << (int) Math.ceil(alpha*k);
                 maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
+
+                if (smallBlocks.capacity < 2*nextSize)
+                    smallBlocks.rebuild(nextSize);
             }
         }
 
-        smallBlocks.grow(a);
+        smallBlocks.append(a);
         n++;
+    }
+
+    public long countedGrow(T a){
+        long size = wordCount();
+        // Big enough for another large block
+        if (smallBlocks.isFull()){
+            // Move all items in small blocks over
+            T[] items = smallBlocks.removeKLast(nextSize);
+            size += items.length;
+
+            largeBlocks.grow(items);
+            itemsInLarge += nextSize;
+            blocksInSuper++;
+
+            if (blocksInSuper >= maxBlocks){
+                // Start of a new superblock
+                k++;
+                superInfo.grow(new SuperblockInfo(k));
+                blocksInSuper = 0;
+                nextSize = 1 << (int) Math.ceil(alpha*k);
+                maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
+
+                if (smallBlocks.capacity < 2*nextSize)
+                    smallBlocks.rebuild(nextSize);
+            }
+        }
+
+        smallBlocks.append(a);
+        n++;
+        return size;
     }
 
     @Override
     public T shrink() {
-        return null;
+        if (smallBlocks.isEmpty()){
+            // A block must be converted into smaller datablocks
+            blocksInSuper--;
+            if (blocksInSuper < 0){
+                // We are now in a smaller superblock
+                k--;
+                superInfo.shrink();
+                nextSize = 1 << (int) Math.ceil(alpha*k);
+                maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
+                blocksInSuper = maxBlocks - 1;
+
+                // Ensure small blocks don't use too much space
+                if (smallBlocks.capacity > 2*nextSize)
+                    smallBlocks.rebuild(nextSize);
+            }
+
+            // Move items over
+            T[] removedBlock = largeBlocks.shrink();
+            smallBlocks.appendMany(removedBlock);
+            itemsInLarge -= removedBlock.length;
+        }
+        n--;
+        return smallBlocks.pop();
+    }
+
+    @Override
+    public long countedShrink() {
+        long size = wordCount();
+        if (smallBlocks.isEmpty()){
+            // A block must be converted into smaller datablocks
+            blocksInSuper--;
+            if (blocksInSuper < 0){
+                // We are now in a smaller superblock
+                k--;
+                superInfo.shrink();
+                nextSize = 1 << (int) Math.ceil(alpha*k);
+                maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
+                blocksInSuper = maxBlocks - 1;
+
+                // Ensure small blocks don't use too much space
+                if (smallBlocks.capacity > 2*nextSize)
+                    smallBlocks.rebuild(nextSize);
+            }
+
+            // Move items over
+            T[] removedBlock = largeBlocks.shrink();
+            size += removedBlock.length;
+            smallBlocks.appendMany(removedBlock);
+            itemsInLarge -= removedBlock.length;
+        }
+        n--;
+        smallBlocks.pop();
+        return size;
     }
 
     @Override
@@ -132,7 +243,11 @@ public class TestArray<T> implements ResizableArray<T>{
 
     @Override
     public long wordCount() {
-        return smallBlocks.wordCount() + largeBlocks.wordCount();
+        return constantCount() + smallBlocks.wordCount() + largeBlocks.wordCount() + superInfo.wordCount();
+    }
+
+    private long constantCount(){
+        return 7;
     }
 
     @Override

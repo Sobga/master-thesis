@@ -10,8 +10,8 @@ import java.util.Map;
 import static utils.Utils.generateOperations;
 
 public class TimeBenchmark extends Benchmark{
-    private final int N_TRIALS = 10;
-    private final int TEST_SIZE = (int) 1E5;
+    private final int N_TRIALS = 11;
+    private final int TEST_SIZE = (int) 1E6;
 
     private final ResizableArray<Integer>[] arrays;
     private final Map<ResizableArray<Integer>, long[]> results;

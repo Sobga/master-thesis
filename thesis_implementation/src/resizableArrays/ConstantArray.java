@@ -10,6 +10,7 @@ import static utils.Utils.createTypedArray;
 public class ConstantArray<T> implements ResizableArray<T>{
     T[] items;
     int n = 0;
+    int shrinkSize;
     final float scale;
 
     public ConstantArray(float alpha){
@@ -20,6 +21,7 @@ public class ConstantArray<T> implements ResizableArray<T>{
     @Override
     public void clear() {
         items = createTypedArray(1);
+        shrinkSize = (int) (items.length / (scale * scale));
         n = 0;
     }
 
@@ -55,16 +57,20 @@ public class ConstantArray<T> implements ResizableArray<T>{
     @Override
     public void grow(T a) {
         // Grow array, as it is full
-        if (n >= items.length)
+        if (n >= items.length) {
             items = Arrays.copyOf(items, (int) Math.ceil(scale * items.length));
+            shrinkSize = (int) (items.length / (scale * scale));
+        }
         items[n++] = a;
     }
 
     @Override
     public T shrink() {
         // Array is too empty
-        if (n <= items.length / (scale * scale))
+        if (n <= shrinkSize) {
             items = Arrays.copyOf(items, (int) Math.ceil(items.length / scale));
+            shrinkSize = (int) (items.length / (scale * scale));
+        }
 
         // Find and delete last item
         T ret = items[n-1];
@@ -79,6 +85,7 @@ public class ConstantArray<T> implements ResizableArray<T>{
         long size = wordCount();
         if (n >= items.length) {
             items = Arrays.copyOf(items, (int) Math.ceil(scale * items.length));
+            shrinkSize = (int) (items.length / (scale * scale));
             size += items.length;
         }
         items[n++] = a;
@@ -91,8 +98,9 @@ public class ConstantArray<T> implements ResizableArray<T>{
         long size = wordCount();
 
         // Array is too empty
-        if (n <= items.length / (scale * scale)) {
+        if (n <= shrinkSize) {
             items = Arrays.copyOf(items, (int) Math.ceil(items.length / scale));
+            shrinkSize = (int) (items.length / (scale * scale));
             size += items.length;
         }
 
@@ -106,7 +114,7 @@ public class ConstantArray<T> implements ResizableArray<T>{
 
     @Override
     public long wordCount() {
-        long res = MemoryLookup.wordSize(n) + items.length;
+        long res = MemoryLookup.wordSize(n) + MemoryLookup.wordSize(shrinkSize) + items.length;
         if (n > 0 && !MemoryLookup.isPrimitive(items[0])){
             if (items[0] instanceof WordCountable)
                 for (int i = 0; i < n; i++)

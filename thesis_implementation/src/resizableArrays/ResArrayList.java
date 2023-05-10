@@ -1,11 +1,9 @@
 package resizableArrays;
 
-import java.util.ArrayList;
-
 public class ResArrayList<T> implements ResizableArray<T>{
-    private final ArrayList<T> items;
+    private final ArrayListExtended<T> items;
     public ResArrayList(){
-        items = new ArrayList<>();
+        items = new ArrayListExtended<>();
 
     }
 
@@ -31,8 +29,20 @@ public class ResArrayList<T> implements ResizableArray<T>{
     }
 
     @Override
+    public long countedGrow(T a) {
+        items.add(a);
+        return -1;
+    }
+
+    @Override
     public final T shrink() {
         return items.remove(items.size() - 1);
+    }
+
+    @Override
+    public long countedShrink() {
+        shrink();
+        return -1;
     }
 
     @Override
@@ -43,7 +53,7 @@ public class ResArrayList<T> implements ResizableArray<T>{
 
     @Override
     public final long wordCount() {
-        return -1;
+        return items.wordCount();
     }
 
     @Override

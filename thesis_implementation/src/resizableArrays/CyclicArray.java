@@ -6,7 +6,7 @@ import utils.Utils;
 
 public class CyclicArray<T> implements WordCountable {
     private final T[] items;
-    private final int mask;
+    final int mask;
     private int start;
     private int n;
     private int lastPattern;
@@ -18,7 +18,7 @@ public class CyclicArray<T> implements WordCountable {
         lastPattern = start - 1 + items.length;
     }
 
-    public final int length(){
+    public int length(){
         return n;
     }
 
@@ -27,18 +27,18 @@ public class CyclicArray<T> implements WordCountable {
         items[(i + start) & mask] = a;
     }
 
-    public final T get(int i){
+    public T get(int i){
         assert i >= 0;
         return items[(i + start) & mask];
     }
 
-    public final void append(T a){
+    public void append(T a){
         assert n < items.length;
         items[(start + n) & mask] = a;
         n++;
     }
 
-    public final T removeFirst(){
+    public T removeFirst(){
         assert n > 0;
         T ret = items[start];
         items[start] = null;
@@ -48,7 +48,7 @@ public class CyclicArray<T> implements WordCountable {
         return ret;
     }
 
-    public final T removeLast(){
+    public T removeLast(){
         assert n > 0;
         int idx = (n+lastPattern) & mask;
         T ret = items[idx];
@@ -57,11 +57,11 @@ public class CyclicArray<T> implements WordCountable {
         return ret;
     }
 
-    public final T last(){
+    public T last(){
         return items[(n+lastPattern) & mask];
     }
 
-    public final void clear(){
+    public void clear(){
         for (int i = 0; i < n; i++)
             removeFirst();
         start = 0;

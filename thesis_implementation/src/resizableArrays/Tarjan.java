@@ -192,7 +192,7 @@ public class Tarjan<T> implements ResizableArray<T>{
 
     @Override
     public T shrink() {
-        if (n <= bSQ*b/64)
+        if (n <= bCB/64)
             rebuildShrink();
 
         // Are all small blocks empty?
@@ -204,7 +204,6 @@ public class Tarjan<T> implements ResizableArray<T>{
             itemsInLargeBlocks -= bSQ;
             DataBlock<T> oldLarge = largeBlocks[largeIdx];
             largeBlocks[largeIdx] = null;
-
 
             int start = 0;
             if (smallBlocks.length() == 1){
@@ -292,30 +291,31 @@ public class Tarjan<T> implements ResizableArray<T>{
     public long countedGrow(T a) {
         long size = 0;
         // Is the datastructure too full?
-        if (n >= b*b*b)
+        if (n >= bCB)
             size = countedRebuildGrow();
 
-        if (smallBlocks.last().isFull()){
+        DataBlock<T> lastBlock = smallBlocks.last();
+        if (lastBlock.isFull()){
             if (smallBlocks.length() == 2*b) {
-                size = Math.max(wordCount() + (long) b * b, size);
+                size = Math.max(wordCount() + (long) bSQ, size);
 
                 // Store items in large block
-                T[] items = Utils.createTypedArray(b*b);
+                T[] items = Utils.createTypedArray(bSQ);
                 for (int i = 0; i < b; i++){
                     DataBlock<T> block = smallBlocks.removeFirst();
                     System.arraycopy(block.items, 0, items, b*i, b);
                 }
 
                 // Error?
-                largeBlocks[largeIdx++] = new DataBlock<>(items, b*b);
+                largeBlocks[largeIdx++] = new DataBlock<>(items, bSQ);
+                itemsInLargeBlocks += bSQ;
             }
             // Allocate another small block
-            smallBlocks.append(new DataBlock<>(b));
+            lastBlock = new DataBlock<>(b);
+            smallBlocks.append(lastBlock);
         }
 
-
-        DataBlock<T> last = getLastNonFull();
-        last.append(a);
+        lastBlock.append(a);
         n++;
 
         if (size == 0)
@@ -324,7 +324,6 @@ public class Tarjan<T> implements ResizableArray<T>{
     }
 
     private long countedRebuildGrow(){
-        int bSQ = b*b;
         int newB = b << 1;
         int newBSQ = newB * newB;
 
@@ -332,7 +331,7 @@ public class Tarjan<T> implements ResizableArray<T>{
 
         // Since large blocks now contain 4x the amount of items, we need 4 large blocks from before
         int i = 0;
-        for (; i < largeIdx/4; i++){
+        for (int stop = largeIdx >> 2; i < stop; i++){
             T[] items = Utils.createTypedArray(newBSQ);
             for (int j = 0; j < 4; j++){
                 int blockIdx = 4*i + j;
@@ -347,7 +346,7 @@ public class Tarjan<T> implements ResizableArray<T>{
 
         // Remaining large blocks (at most 3) must be moved to small blocks
         for (int j = 4*i; j < largeIdx; j++){
-            for (int k = 0; k < b/2; k++){
+            for (int k = 0, stop = b >> 1; k < stop; k++){
                 T[] items = Arrays.copyOfRange(largeBlocks[j].items, newB*k, newB*(k+1));
                 newSmallBlocks.append(new DataBlock<>(items, newB));
             }
@@ -381,10 +380,15 @@ public class Tarjan<T> implements ResizableArray<T>{
                 newBSQ; // Overhead of arrays whilst moving values
 
         // Finalize values being moved
+        b = newB;
+        bSQ = b*b;
+        bCB = bSQ * b;
+        bExp += 1;
+        bSQExp += 2;
         largeBlocks = newLargeBlocks;
         smallBlocks = newSmallBlocks;
         largeIdx = i;
-        b = newB;
+        itemsInLargeBlocks = largeIdx * bSQ;
 
         return size;
     }
@@ -392,7 +396,7 @@ public class Tarjan<T> implements ResizableArray<T>{
     @Override
     public long countedShrink() {
         long size = 0;
-        if (n <= b*b*b/64)
+        if (n <= bCB/64)
             size = countedRebuildShrink();
 
         // Are all small blocks empty?
@@ -402,9 +406,9 @@ public class Tarjan<T> implements ResizableArray<T>{
             size = Math.max(size, wordCount() + ((long) b)*b);
             // Take a large block and turn it into small blocks
             largeIdx--;
+            itemsInLargeBlocks -= bSQ;
             DataBlock<T> oldLarge = largeBlocks[largeIdx];
             largeBlocks[largeIdx] = null;
-
 
             int start = 0;
             // Is there one empty small block remaining?
@@ -492,7 +496,10 @@ public class Tarjan<T> implements ResizableArray<T>{
 
         smallBlocks = newSmallBlocks;
         b = newB;
-        bSQ = newBSQ;
+        bSQ = b*b;
+        bCB = bSQ * b;
+        bExp = Utils.log2nlz(b);
+        bSQExp = 2*bExp;
         itemsInLargeBlocks = bSQ * largeIdx;
         return size + constantWordCount();
     }

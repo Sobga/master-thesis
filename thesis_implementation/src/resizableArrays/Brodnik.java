@@ -59,7 +59,6 @@ public class Brodnik<T> implements ResizableArray<T>{
 
         // Find last-block
         DataBlock<T> lastBlock = blocks.last();
-
         if (lastBlock.isEmpty()){
             blocks.shrink(); // Remove empty block
             lastBlock = blocks.last();

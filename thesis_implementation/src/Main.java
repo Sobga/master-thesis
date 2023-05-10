@@ -1,9 +1,9 @@
-import benchmarking.Operation;
 import resizableArrays.ResArrayList;
 import resizableArrays.ResizableArray;
 import resizableArrays.*;
 import utils.Utils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -15,12 +15,12 @@ public class Main {
 
         // Resizable Arrays to test
         ArrayList<ResizableArray<Integer>> arrays = new ArrayList<>();
-        //arrays.add(baseline);
+        arrays.add(baseline);
 //        arrays.add(new ConstantArray<>(1));
 //        arrays.add(new ConstantLazyArray<>(1));
 //        arrays.add(new Brodnik<>());
-        //arrays.add(new Tarjan<>());
-        arrays.add(new BrodnikPowerTwo<>());
+//        arrays.add(new Tarjan<>());
+//        arrays.add(new BrodnikPowerTwo<>());
 //        arrays.add(new Sitarski<>());
         arrays.add(new TestArray<>());
         // Generate random operations
@@ -30,23 +30,25 @@ public class Main {
         Utils.setSeed(seed);
 
         int n = (int) 1E6;
-        /*for (ResizableArray<Integer> array : arrays){
+        for (ResizableArray<Integer> array : arrays){
             for (int i = 0; i < n; i++) {
                 array.grow(i);
             }
-        }*/
-
-
+        }
 
         //int size = arrays.get(0).length();
-        //int[] indices = Utils.indexingPermutation(size);
-        for (int i = 0; i < n; i++){
-            for (ResizableArray<Integer> array : arrays)
-                //array.set(indices[i], i);
-                array.grow(i);
-//                array.shrink();
-//                array.countedGrow(i);
-            assert (resizableEqual(baseline, arrays));
+        //int[] indices = Utils.indexingPermutation(n);
+        for (ResizableArray<Integer> array : arrays)
+            {
+                for (int i = 0; i < n; i++){
+
+    //                array.set(indices[i], i);
+//                    array.grow(i);
+                    array.shrink();
+    //                array.countedGrow(i);
+
+            }
+            //assert (resizableEqual(baseline, arrays));
         }
     }
 

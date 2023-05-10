@@ -75,15 +75,17 @@ public class Sitarski<T> implements ResizableArray<T>{
             T[] items = Utils.createTypedArray(newB);
             int fillLevel = 0;
             // Copy and deallocate first block
-            System.arraycopy(indexBlock[2*i].items, 0, items, 0, b);
-            fillLevel += indexBlock[2*i].size();
+            DataBlock<T> firstBlock = indexBlock[2*i];
+            System.arraycopy(firstBlock.items, 0, items, 0, b);
+            fillLevel += firstBlock.size();
             indexBlock[2*i] = null;
 
 
             // Copy and deallocate second block
             if (2*i+1 < b) {
-                System.arraycopy(indexBlock[2*i + 1].items, 0, items, b, b);
-                fillLevel += indexBlock[2*i+1].size();
+                DataBlock<T> secondBlock = indexBlock[2*i + 1];
+                System.arraycopy(secondBlock.items, 0, items, b, b);
+                fillLevel += secondBlock.size();
                 indexBlock[2*i + 1] = null;
             }
 
@@ -105,6 +107,7 @@ public class Sitarski<T> implements ResizableArray<T>{
         int blockIdx = n >> bExp;
         T ret = indexBlock[blockIdx].pop();
 
+        // Remove youngest empty block if two empty blocks are present
         if (indexBlock[blockIdx].isEmpty() && blockIdx+1 < b)
             indexBlock[blockIdx+1] = null;
         return ret;
