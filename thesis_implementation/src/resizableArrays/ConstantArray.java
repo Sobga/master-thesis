@@ -25,14 +25,10 @@ public class ConstantArray<T> implements ResizableArray<T>{
         n = 0;
     }
 
-
     @Override
     public String getName() {
         return "ConstantArray-" + (scale-1);
     }
-
-
-
 
     @Override
     public int length() {

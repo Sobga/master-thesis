@@ -19,10 +19,11 @@ public class Main {
 //        arrays.add(new ConstantArray<>(1));
 //        arrays.add(new ConstantLazyArray<>(1));
 //        arrays.add(new Brodnik<>());
-//        arrays.add(new Tarjan<>());
+        arrays.add(new Tarjan<>());
 //        arrays.add(new BrodnikPowerTwo<>());
 //        arrays.add(new Sitarski<>());
         arrays.add(new TestArray<>());
+
         // Generate random operations
         Random random = new Random(0);
         long seed = random.nextLong();
@@ -30,17 +31,12 @@ public class Main {
         Utils.setSeed(seed);
 
         int n = (int) 1E6;
-        for (ResizableArray<Integer> array : arrays){
-            for (int i = 0; i < n; i++) {
-                array.grow(i);
-            }
-        }
-
+        testGrow(baseline, arrays, n);
+//        testShrink(baseline, arrays, n);
         //int size = arrays.get(0).length();
         //int[] indices = Utils.indexingPermutation(n);
-        for (ResizableArray<Integer> array : arrays)
-            {
-                for (int i = 0; i < n; i++){
+        /*for (int i = 0; i < n; i++) {
+            for (ResizableArray<Integer> array : arrays){
 
     //                array.set(indices[i], i);
 //                    array.grow(i);
@@ -49,9 +45,38 @@ public class Main {
 
             }
             //assert (resizableEqual(baseline, arrays));
-        }
+        }*/
     }
 
+    private void testGrow(ResizableArray<Integer> baseline, ArrayList<ResizableArray<Integer>> arrays, int n){
+        for (int i = 0; i < n; i++){
+            for (ResizableArray<Integer> array : arrays){
+                array.grow(i);
+            }
+            //assert (resizableEqual(baseline, arrays));
+        }
+
+        for (ResizableArray<Integer> array: arrays)
+            array.clear();
+    }
+
+    private void testShrink(ResizableArray<Integer> baseline, ArrayList<ResizableArray<Integer>> arrays, int n){
+        for (ResizableArray<Integer> array : arrays)
+            for (int i = 0; i < n; i++){ {
+                array.grow(i);
+            }
+        }
+
+        for (int i = 0; i < n; i++){
+            for (ResizableArray<Integer> array : arrays){
+                array.shrink();
+            }
+            //assert (resizableEqual(baseline, arrays));
+        }
+
+        for (ResizableArray<Integer> array: arrays)
+            array.clear();
+    }
     // Determines if all arrays are equal (ie. contain the same elements)
     public boolean resizableEqual(ResizableArray<Integer> baseline, ArrayList<ResizableArray<Integer>> arrays){
         if (arrays.size() == 0)

@@ -24,7 +24,7 @@ public class TestArray<T> implements ResizableArray<T>{
         this.alpha = alpha;
         superInfo = new ConstantArray<>(1.0f);
         largeBlocks = new ConstantArray<>(1.0f);
-        smallBlocks = new CyclicDatablockArray<>(1);
+        smallBlocks = new CyclicDatablockArray<>(1, 1);
         clear();
     }
 
@@ -141,7 +141,7 @@ public class TestArray<T> implements ResizableArray<T>{
                 maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
 
                 if (smallBlocks.capacity < 2*nextSize)
-                    smallBlocks.rebuild(nextSize);
+                    rebuild();
             }
         }
 
@@ -170,7 +170,7 @@ public class TestArray<T> implements ResizableArray<T>{
                 maxBlocks = 1 << (int) Math.floor((1-alpha)*(k+0.1));
 
                 if (smallBlocks.capacity < 2*nextSize)
-                    smallBlocks.rebuild(nextSize);
+                    rebuild();
             }
         }
 
@@ -194,12 +194,12 @@ public class TestArray<T> implements ResizableArray<T>{
 
                 // Ensure small blocks don't use too much space
                 if (smallBlocks.capacity > 2*nextSize)
-                    smallBlocks.rebuild(nextSize);
+                    rebuild();
             }
 
             // Move items over
             T[] removedBlock = largeBlocks.shrink();
-            smallBlocks.appendMany(removedBlock);
+            smallBlocks.appendMany(removedBlock, removedBlock.length);
             itemsInLarge -= removedBlock.length;
         }
         n--;
@@ -222,18 +222,25 @@ public class TestArray<T> implements ResizableArray<T>{
 
                 // Ensure small blocks don't use too much space
                 if (smallBlocks.capacity > 2*nextSize)
-                    smallBlocks.rebuild(nextSize);
+                    rebuild();
             }
 
             // Move items over
             T[] removedBlock = largeBlocks.shrink();
             size += removedBlock.length;
-            smallBlocks.appendMany(removedBlock);
+            smallBlocks.appendMany(removedBlock, removedBlock.length);
             itemsInLarge -= removedBlock.length;
         }
         n--;
         smallBlocks.pop();
         return size;
+    }
+
+    private void rebuild(){
+        // Rebuild smallBlock array such that we can store 2x the next block
+        int nextSizeExp = Utils.log2nlz(nextSize);
+        int newBlockExponent = (int) Math.ceil(nextSizeExp / 2.0);
+        smallBlocks.rebuild(1 << (nextSizeExp - newBlockExponent + 1), 1 << newBlockExponent);
     }
 
     @Override

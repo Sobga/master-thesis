@@ -4,6 +4,8 @@ import memory.MemoryLookup;
 import memory.WordCountable;
 import utils.Utils;
 
+import java.util.Iterator;
+
 public class CyclicDatablockArray<T> implements WordCountable {
     private int n;
     private int nBlocks;
@@ -21,23 +23,22 @@ public class CyclicDatablockArray<T> implements WordCountable {
     private int blockMask;
 
 
-
-
-    public CyclicDatablockArray(int capacity) {
-        assert Utils.isPowerOfTwo(capacity);
-        clear(capacity);
+    public CyclicDatablockArray(int indexSize, int blockSize) {
+        assert Utils.isPowerOfTwo(indexSize);
+        assert Utils.isPowerOfTwo(blockSize);
+        clear(indexSize, blockSize);
     }
 
     public void clear(){
-        clear(1);
+        clear(1, 1);
     }
-    private void clear(int newCapacity){
-        int capExponent = Utils.log2nlz(newCapacity);
-        blockExponent = (int) Math.ceil(capExponent / 2.0);
-        blockSize = 1 << blockExponent;
+
+    private void clear(int indexSize, int blockSize){
+        blockExponent = Utils.log2nlz(blockSize);
+        this.blockSize = blockSize;
         itemMask = blockSize - 1;
 
-        blocks = new DataBlock[1 << (capExponent - blockExponent + 1)];
+        blocks = new DataBlock[indexSize];
         blockMask = blocks.length - 1;
         start = 0;
         lastBlock = new DataBlock<>(blockSize);
@@ -48,7 +49,6 @@ public class CyclicDatablockArray<T> implements WordCountable {
     }
 
     public final int length(){return n;}
-
     public final boolean isFull(){
         return n == capacity;
     }
@@ -83,14 +83,14 @@ public class CyclicDatablockArray<T> implements WordCountable {
         lastBlock.append(a);
     }
 
-    public void appendMany(T[] items){
+    public void appendMany(T[] items, int nItems){
         assert n + items.length < capacity;
-        int remainingItems = items.length;
+        int remainingItems = nItems;
 
         // Fill out first datablock
-        int lastCapacity = blockSize - lastBlock.n;
+        int lastCapacity = Math.min(blockSize - lastBlock.n, remainingItems);
         System.arraycopy(items, 0, lastBlock.items, lastBlock.n, lastCapacity);
-        lastBlock.n = blockSize;
+        lastBlock.n += lastCapacity;
         remainingItems -= lastCapacity;
 
 
@@ -131,6 +131,8 @@ public class CyclicDatablockArray<T> implements WordCountable {
 
     public T[] removeKLast(int k){
         assert (k % blockSize == 0);
+        assert Math.abs(nBlocks * blockSize - n) < blockSize;
+
         T[] items = Utils.createTypedArray(k);
         int movedItems = 0;     // Number of moved items
         int blockIdx = 0;       // Number of moved blocks
@@ -146,31 +148,40 @@ public class CyclicDatablockArray<T> implements WordCountable {
         nBlocks -= blockIdx;
         start = (start + blockIdx) & blockMask; // Start is shifted with the number of moved blocks
         n-=k;
+        assert Math.abs(nBlocks * blockSize - n) < blockSize;
         return items;
     }
 
-    public void rebuild(int newCapacity){
-        assert Utils.isPowerOfTwo(newCapacity);
-        int capExponent = Utils.log2nlz(newCapacity);
-        int newBlockExponent = (int) Math.ceil(capExponent / 2.0);
-        int newBlockSize = 1 << newBlockExponent;
+    public void rebuild(int indexSize, int newBlockSize){
+        assert Utils.isPowerOfTwo(indexSize);
+        assert Utils.isPowerOfTwo(newBlockSize);
+        int newBlockExponent = Utils.log2nlz(newBlockSize);
+
+        //int newBlockSize = 1 << newBlockExponent;
         int newItemMask = newBlockSize - 1;
 
-        DataBlock<T>[] newBlocks = new DataBlock[1 << (capExponent - newBlockExponent + 1)];
+        DataBlock<T>[] newBlocks = new DataBlock[indexSize];
         if (newBlockSize == blockSize){
             // Datablocks are kept same size - just move them over
             int i = 0;
             for (; i < nBlocks; i++)
                 newBlocks[i] = getBlock(i);
-            lastBlock = newBlocks[i - 1];
+            if (i == 0){
+                // Cyclic array was empty when it was rebuilt
+                lastBlock = new DataBlock<>(newBlockSize);
+                nBlocks = 1;
+                newBlocks[0] = lastBlock;
+            } else
+                lastBlock = newBlocks[i-1];
         } else if (n == 0){
+            // Usually called when array must be shrunk
             lastBlock = new DataBlock<>(newBlockSize);
+            nBlocks = 1;
             newBlocks[0] = lastBlock;
-        }
-        else {
+        } else {
             // Must combine/separate blocks -- assume combine for now
-            int i =0 ;
-            assert newBlockSize == 2*blockSize;
+            int i = 0;
+            assert (newBlockSize == 2*blockSize);
             for (; i < Math.max(nBlocks / 2, 1); i++){
                 T[] items = Utils.createTypedArray(newBlockSize);
                 int fillLevel = 0;
@@ -195,7 +206,7 @@ public class CyclicDatablockArray<T> implements WordCountable {
             nBlocks = i;
         }
 
-        //
+        // Move values over
         blockSize = newBlockSize;
         blockExponent = newBlockExponent;
         itemMask = newItemMask;
@@ -203,6 +214,16 @@ public class CyclicDatablockArray<T> implements WordCountable {
         blockMask = blocks.length - 1;
         start = 0;
         capacity = blockSize * blocks.length;
+    }
+
+
+    public DataBlock<T> dequeueDatablock(){
+        DataBlock<T> ret = blocks[start];
+        blocks[start] = null;
+        start = (start+1) & blockMask;
+        nBlocks--;
+        n-=ret.n;
+        return ret;
     }
 
     @Override

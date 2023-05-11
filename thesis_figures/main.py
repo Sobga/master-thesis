@@ -273,9 +273,10 @@ def main():
         if type(fig) == list:
             for j, f in enumerate(fig):
                 f.savefig(f'Figures/{name}_{idx}_{j}.png', format='png')
+                # plt.show()
         else:
             fig.savefig(f'Figures/{name}_{idx}.png', format='png')
-    # plt.show()
+
 
 
 if __name__ == '__main__':
