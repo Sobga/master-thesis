@@ -113,6 +113,7 @@ def plot_boxplot_indexing(benchmark):
     ax.set(xlabel="Resizable array", ylabel="Time [ms]", title="Time to complete $10^7$ indexing operations")
     return fig
 
+
 def plot_boxplot_shrinking(benchmark):
     fig, ax = plt.subplots()
 
@@ -139,32 +140,36 @@ def plot_memory(mem_benchmark):
         for i in range(len(data)):
             data[i] -= actual_size[i]
 
-    fig_a = memory_plots(mem_benchmark)
+    fig_a = memory_plots(mem_benchmark, "Static overhead")
     mem_benchmark['DATA'].pop('ArrayList', None)
     mem_benchmark['DATA'].pop('ConstantArray-1.0', None)
     mem_benchmark['DATA'].pop('ConstantLazyArray-1.0', None)
 
-    fig_b = memory_plots(mem_benchmark)
+    fig_b = memory_plots(mem_benchmark, "Static overhead")
     return [fig_a, fig_b]
 
 
-def memory_plots(mem_benchmark):
+def memory_plots(mem_benchmark, title):
     fig, ax = plt.subplots()
 
     fields = mem_benchmark['FIELDS']
-    for name, data in mem_benchmark['DATA'].items():
-        color, style = lookup_style(name)
-        ax.plot(data, color=color, markevery=mark_freq(name, len(data)), label=name)
-    # ds['ACTUAL_SIZE'], ax=ax, color='black', label='Actual size')
 
-    title = "Overhead of datastructures"
     if fields['N_SHRINK'] == 0:
         title += " - Grow operations"
+        for name, data in mem_benchmark['DATA'].items():
+            color, style = lookup_style(name)
+            ax.plot(data, color=color, markevery=mark_freq(name, len(data)), label=name)
     else:
         title += " - Shrink operations"
+        n_measurements = len(mem_benchmark['DATA']['Brodnik'])
+        x_coords = [n_measurements - i for i in range(n_measurements)]
+        for name, data in mem_benchmark['DATA'].items():
+            color, style = lookup_style(name)
+            ax.plot(x_coords, data, color=color, markevery=mark_freq(name, len(data)), label=name)
+        ax.invert_xaxis()
     ax.set(xlabel="Number of items stored", ylabel="Memory [Words]", title=title)
 
-    #ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=5)
+    # ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=5)
     ax.legend()
     return fig
 
@@ -176,10 +181,10 @@ def plot_rebuild(mem_benchmark):
         for i in range(len(data)):
             data[i] -= fields['ACTUAL_SIZE'][i]
 
-    fig_a = rebuild_plots(mem_benchmark)
+    fig_a = memory_plots(mem_benchmark, "Dynamic overhead")
     mem_benchmark['DATA'].pop('ConstantArray-1.0')
     mem_benchmark['DATA'].pop('ConstantLazyArray-1.0')
-    fig_b = rebuild_plots(mem_benchmark)
+    fig_b = memory_plots(mem_benchmark, "Dynamic overhead")
 
     return [fig_a, fig_b]
 
@@ -276,7 +281,6 @@ def main():
                 # plt.show()
         else:
             fig.savefig(f'Figures/{name}_{idx}.png', format='png')
-
 
 
 if __name__ == '__main__':

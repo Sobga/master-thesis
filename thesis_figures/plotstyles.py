@@ -4,7 +4,7 @@ import matplotlib as mpl
 
 DATASTRUCTURES = ["ArrayList", "ConstantArray", "ConstantLazyArray", "BrodnikPowerTwo", "Brodnik", "Sitarski", "Tarjan", "TestArray"]
 N_MARKERS = 5
-SYMBOLS = [".", "+", "d", "o", "x", "v", "^", None]
+SYMBOLS = [".", "+", "d", "o", "x", "v", "^", "P"]
 COLORS = ["red", "orange", "purple", "black", "brown", "blue", "green", "yellow"]
 CMAP = mpl.colormaps['viridis']
 
