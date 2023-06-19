@@ -91,19 +91,20 @@ public class Benchmarker {
                         new BrodnikPowerTwo<Integer>(),
                         new Sitarski<Integer>(),
                         new Tarjan<Integer>(),
-                        new TestArray<Integer>()
+                        new VBArray<Integer>()
                 };
 
         // Selected benchmarks
         Benchmark[] benchmarks = new Benchmark[]{
-            new TimeBenchmark(arrays, false),
-            new TimeBoxPlotBenchmark(arrays, false),
-            new IndexingBoxPlotBenchmark(arrays),
-            new ShrinkBenchmark(arrays),
-            new RebuildMemoryBenchmark(arrays),
-            new RebuildMemoryBenchmark(arrays, (int) 1E6, 0, (int) 1E6),
-            new MemoryBenchmark(arrays, 0, (int) 1E6, 0),
-            new MemoryBenchmark(arrays, (int) 1E6, 0, (int) 1E6),
+//            new TimeBenchmark(arrays, false),
+//            new TimeBoxPlotBenchmark(arrays, false),
+//            new IndexingBoxPlotBenchmark(arrays),
+            new LinearBoxPlotBenchmark(arrays),
+//            new ShrinkBenchmark(arrays),
+//            new RebuildMemoryBenchmark(arrays),
+//            new RebuildMemoryBenchmark(arrays, (int) 1E6, 0, (int) 1E6),
+//            new MemoryBenchmark(arrays, 0, (int) 1E6, 0),
+//            new MemoryBenchmark(arrays, (int) 1E6, 0, (int) 1E6),
         };
 
         // Perform benchmarks

@@ -22,7 +22,7 @@ public class Main {
         arrays.add(new Tarjan<>());
 //        arrays.add(new BrodnikPowerTwo<>());
 //        arrays.add(new Sitarski<>());
-        arrays.add(new TestArray<>());
+//        arrays.add(new TestArray<>());
 
         // Generate random operations
         Random random = new Random(0);
@@ -31,8 +31,8 @@ public class Main {
         Utils.setSeed(seed);
 
         int n = (int) 1E6;
-        testGrow(baseline, arrays, n);
-//        testShrink(baseline, arrays, n);
+//        testGrow(baseline, arrays, n);
+        testShrink(baseline, arrays, n);
         //int size = arrays.get(0).length();
         //int[] indices = Utils.indexingPermutation(n);
         /*for (int i = 0; i < n; i++) {

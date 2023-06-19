@@ -1,6 +1,7 @@
 package resizableArrays;
 
 import memory.MemoryLookup;
+import utils.Utils;
 
 public class Brodnik<T> implements ResizableArray<T>{
     private final ResizableArray<DataBlock<T>> blocks;

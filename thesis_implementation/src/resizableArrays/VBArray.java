@@ -3,7 +3,7 @@ package resizableArrays;
 import memory.WordCountable;
 import utils.Utils;
 
-public class TestArray<T> implements ResizableArray<T>{
+public class VBArray<T> implements ResizableArray<T>{
     private final ResizableArray<T[]> largeBlocks;
     private final ResizableArray<SuperblockInfo> superInfo;
     private final CyclicDatablockArray<T> smallBlocks;
@@ -16,11 +16,11 @@ public class TestArray<T> implements ResizableArray<T>{
     private int nextSize = 0;
     private int maxBlocks = 0;
 
-    public TestArray(){
+    public VBArray(){
         this(2f/3f);
     }
 
-    public TestArray(float alpha){
+    public VBArray(float alpha){
         this.alpha = alpha;
         superInfo = new ConstantArray<>(1.0f);
         largeBlocks = new ConstantArray<>(1.0f);
@@ -245,7 +245,7 @@ public class TestArray<T> implements ResizableArray<T>{
 
     @Override
     public String getName() {
-        return "TestArray";
+        return "VB-Array";
     }
 
     @Override
